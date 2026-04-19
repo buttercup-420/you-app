@@ -505,6 +505,17 @@
     justify-content: center;
     z-index: 10000;
     overflow: hidden;
+    /* Respect iOS safe-areas so the centered stage doesn't slip behind
+       Safari's top notch / bottom URL bar and clip the context menu. */
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-sizing: border-box;
+  }
+
+  /* When the pressed overlay is active, hide the original YOU card in the
+     chat — it's visually "lifted" into the expanded waitlist card above. */
+  body.pressed #screen2 .imsg-card-row {
+    visibility: hidden;
   }
 
   #screen3.show {
@@ -1129,9 +1140,13 @@
     // On desktop, stays at native 375 centered.
     function fitResponsive() {
       const vw = window.innerWidth;
+      const vh = window.innerHeight;
       let chatScale = 1;
       if (vw < 500) {
-        chatScale = vw / 375;
+        // Fit both dimensions — prevents the context menu from clipping
+        // below Safari's URL bar on tall phones. Chat and stage share the
+        // same scale so they stay aligned.
+        chatScale = Math.min(vw / 375, vh / 812);
       }
       document.documentElement.style.setProperty("--fit-scale", chatScale);
     }
@@ -1171,6 +1186,7 @@
       const waitlistAt = heartAt + HEART_ANIM + HEART_SETTLE;
       setTimeout(() => {
         fitWaitlistStage();
+        document.body.classList.add("pressed");
         document.getElementById("screen3").classList.add("show");
       }, waitlistAt);
     }
