@@ -419,203 +419,361 @@
     }
   }
 
-  /* ---------- Screen 3: Waitlist (responsive) ---------- */
+  /* ---------- Screen 3: Waitlist (iMessage pressed-message overlay) ---------- */
 
   #screen3 {
     position: fixed;
     inset: 0;
-    background: #272727;
     opacity: 0;
     pointer-events: none;
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10000;
-    padding: max(24px, 5vh) 20px;
-    box-sizing: border-box;
+    overflow: hidden;
   }
 
   #screen3.show {
     opacity: 1;
     pointer-events: auto;
-    transition: opacity 700ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 500ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .waitlist-frame {
+  /* Stage = the 375x812 phone frame that everything positions against. */
+  .wl-stage {
     position: relative;
-    width: 100%;
-    max-width: 1200px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(56px, 12vh, 140px);
+    width: 375px;
+    height: 812px;
+    transform-origin: top center;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Helvetica Neue", sans-serif;
   }
 
-  .w-upper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(18px, 3vh, 32px);
-    width: 100%;
+  /* Frosted blur over the chat below (screen2 stays rendered underneath). */
+  .wl-blur {
+    position: absolute;
+    left: 0;
+    top: -10px;
+    width: 375px;
+    height: 811px;
+    background: rgba(250, 250, 250, 0.6);
+    backdrop-filter: blur(12.5px);
+    -webkit-backdrop-filter: blur(12.5px);
   }
 
-  .w-title {
-    margin: 0;
-    font-family: "Nunito", -apple-system, BlinkMacSystemFont, sans-serif;
+  /* "Pressed" sent-message preview (small floating chip at top) */
+  .wl-chip {
+    position: absolute;
+    left: 146px;
+    top: 111px;
+    width: 95px;
+    height: 90px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.25);
+  }
+
+  .wl-chip-dot {
+    position: absolute;
+    left: 182px;
+    top: 165px;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #2419ed;
+    box-shadow: 0 5px 20px rgba(166, 166, 166, 0.3);
+  }
+
+  .wl-chip-face {
+    position: absolute;
+    left: 184px;
+    top: 168px;
+    width: 20px;
+    height: 20px;
+    object-fit: cover;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* Heart reaction bubble pointing down-left at the pressed chip */
+  .wl-heart {
+    position: absolute;
+    left: 153px;
+    top: 126px;
+    width: 59px;
+    height: 48px;
+    transform: rotate(180deg) scaleY(-1);
+    pointer-events: none;
+  }
+
+  /* Tapback reaction bar */
+  .wl-tapback {
+    position: absolute;
+    left: 52px;
+    top: 219px;
+    width: 286px;
+    height: 48px;
+    border-radius: 100px;
+    background: #ffffff;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.1);
+  }
+
+  .wl-tapback-row {
+    position: absolute;
+    left: 22px;
+    top: 15px;
+    display: flex;
+    gap: 27px;
+    align-items: center;
+  }
+
+  .wl-rx {
+    width: 18px;
+    height: 19px;
+    background-image: url("images/waitlist/tapback-reactions.png");
+    background-repeat: no-repeat;
+    background-size: 207.76px 26.6px;
+    background-position-y: -2.85px;
+  }
+
+  .wl-rx.r1 { background-position-x: 0.11px; }
+  .wl-rx.r2 { background-position-x: -37.49px; }
+  .wl-rx.r3 { background-position-x: -74.59px; }
+  .wl-rx.r4 { background-position-x: -111.49px; }
+  .wl-rx.r5 { background-position-x: -148.39px; }
+  .wl-rx.r6 { background-position-x: -186.19px; }
+
+  .wl-tapback-dot-big {
+    position: absolute;
+    left: 68px;
+    top: 261px;
+    width: 12px;
+    height: 12px;
+    pointer-events: none;
+  }
+
+  .wl-tapback-dot-small {
+    position: absolute;
+    left: 61px;
+    top: 270px;
+    width: 6px;
+    height: 6px;
+    pointer-events: none;
+  }
+
+  /* Main YOU card (the pressed message attachment, expanded) */
+  .wl-card {
+    position: absolute;
+    left: 72px;
+    top: 277px;
+    width: 255px;
+    height: 343px;
+    border-radius: 15px;
+    background: #272727;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  }
+
+  .wl-card-you {
+    position: absolute;
+    left: 50%;
+    top: 55px;
+    transform: translateX(-50%);
+    height: 76px;
+    width: auto;
+    pointer-events: none;
+  }
+
+  .wl-card-subtitle {
+    position: absolute;
+    left: 50%;
+    top: 146px;
+    transform: translateX(-50%);
+    height: 10px;
+    width: auto;
+    pointer-events: none;
+  }
+
+  .wl-card-title {
+    position: absolute;
+    left: 50%;
+    top: 180px;
+    transform: translateX(-50%);
+    color: #fffafa;
+    font-size: 12px;
     font-weight: 300;
-    font-size: clamp(24px, 4.2vw, 44px);
-    letter-spacing: -0.4px;
-    line-height: 1;
-    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    line-height: 1.25;
     white-space: nowrap;
-    text-align: center;
   }
 
-  .w-pill {
-    position: relative;
-    width: min(460px, 100%);
-    height: clamp(52px, 8vw, 64px);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    backdrop-filter: blur(24px) saturate(140%);
-    -webkit-backdrop-filter: blur(24px) saturate(140%);
+  .wl-pill {
+    position: absolute;
+    left: 50%;
+    top: 202px;
+    transform: translateX(-50%);
+    width: 166px;
+    height: 26px;
+    border-radius: 255px;
+    background: rgba(131, 132, 133, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
-      0 30px 60px -20px rgba(0, 0, 0, 0.45);
-    transition: border-color 200ms ease, background 200ms ease;
+      0 35px 180.8px rgba(0, 0, 0, 0.06),
+      inset 0 1px 4px #ffffff;
   }
 
-  .w-pill:focus-within {
-    border-color: rgba(255, 255, 255, 0.28);
-    background: rgba(255, 255, 255, 0.06);
-  }
-
-  .w-pill input {
+  .wl-pill input {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    padding: 0 56px 0 22px;
+    padding: 0 22px 0 10px;
     background: transparent;
     border: 0;
     outline: 0;
     color: #ffffff;
-    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "SF Pro", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
     font-weight: 400;
-    font-size: clamp(15px, 2vw, 17px);
+    font-size: 10px;
     letter-spacing: 0.2px;
+    line-height: 1.06;
     box-sizing: border-box;
   }
 
-  .w-pill input::placeholder {
-    color: rgba(255, 255, 255, 0.42);
-    font-weight: 300;
+  .wl-pill input::placeholder {
+    color: rgba(255, 255, 255, 0.65);
   }
 
-  .w-submit {
+  .wl-submit {
     position: absolute;
     top: 50%;
-    right: 14px;
+    right: 8px;
     transform: translateY(-50%);
-    width: 34px;
-    height: 34px;
+    width: 14px;
+    height: 14px;
     padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     background: transparent;
     border: 0;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.72);
-    transition: color 160ms ease, transform 160ms ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .w-submit:hover {
-    color: #ffffff;
-    transform: translateY(-50%) translate(1px, -1px);
-  }
-
-  .w-submit svg {
-    width: 18px;
-    height: 18px;
+  .wl-submit img {
+    width: 10px;
+    height: 10px;
     display: block;
   }
 
-  .w-submit:disabled {
-    opacity: 0.5;
-    cursor: default;
-    transform: translateY(-50%);
-  }
-
-  .w-pill[data-state="success"] input {
-    color: rgba(255, 255, 255, 0.85);
-  }
-
-  .w-status {
+  .wl-desc {
     position: absolute;
     left: 50%;
-    top: calc(100% + 14px);
+    top: 248px;
     transform: translateX(-50%);
-    font-family: "Nunito", -apple-system, BlinkMacSystemFont, sans-serif;
+    width: 216px;
+    margin: 0;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    font-size: 8px;
+    font-weight: 400;
+    letter-spacing: -0.04px;
+    line-height: 1.25;
+    text-align: center;
+  }
+
+  .wl-card-footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 63px;
+    background: rgba(152, 150, 150, 0.5);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+  }
+
+  .wl-card-footer-logo {
+    position: absolute;
+    left: 8px;
+    top: 16px;
+    height: 22px;
+    width: auto;
+    pointer-events: none;
+  }
+
+  .wl-card-footer-sub {
+    position: absolute;
+    left: 8px;
+    top: 40px;
+    height: 6px;
+    width: auto;
+    pointer-events: none;
+    opacity: 0.85;
+  }
+
+  .wl-card-footer-text {
+    position: absolute;
+    left: 117px;
+    top: 14px;
+    width: 129px;
+    color: #ffffff;
+    opacity: 0.9;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    font-size: 12px;
     font-weight: 300;
-    font-size: 14px;
-    letter-spacing: 0.3px;
-    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.25;
+  }
+
+  /* Context menu */
+  .wl-menu {
+    position: absolute;
+    left: 130px;
+    top: 630px;
+    width: 226px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(30px) saturate(140%);
+    -webkit-backdrop-filter: blur(30px) saturate(140%);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+
+  .wl-menu-item {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    font-size: 15px;
+    color: #000;
+    line-height: 1.25;
+    border-bottom: 0.5px solid rgba(60, 60, 67, 0.24);
+  }
+
+  .wl-menu-item:last-child {
+    border-bottom: 0;
+  }
+
+  /* Status line (success / error feedback) */
+  .wl-status {
+    position: absolute;
+    left: 50%;
+    top: 295px;
+    transform: translateX(-50%);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.8);
     opacity: 0;
     transition: opacity 240ms ease;
     pointer-events: none;
     white-space: nowrap;
   }
 
-  .w-status.show {
-    opacity: 1;
-  }
-
-  .w-status.err {
-    color: rgba(255, 140, 140, 0.85);
-  }
-
-  /* "We got YOU" group — row plus subtitle underneath. */
-  .w-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(8px, 1.4vh, 18px);
-  }
-
-  .w-row {
-    display: flex;
-    align-items: baseline;
-    gap: clamp(12px, 2.2vw, 24px);
-    white-space: nowrap;
-  }
-
-  .w-wegot {
-    margin: 0;
-    font-family: "Nunito", -apple-system, BlinkMacSystemFont, sans-serif;
-    font-weight: 600;
-    font-size: clamp(56px, 13vw, 160px);
-    line-height: 1;
-    color: #ffffff;
-    letter-spacing: -0.025em;
-  }
-
-  .w-you {
-    display: block;
-    height: clamp(48px, 11.5vw, 140px);
-    width: auto;
-    pointer-events: none;
-    transform: translateY(0.06em);
-  }
-
-  .w-subtitle {
-    display: block;
-    height: clamp(10px, 1.9vw, 22px);
-    width: auto;
-    pointer-events: none;
-  }
+  .wl-status.show { opacity: 1; }
+  .wl-status.err { color: #ff8c8c; }
 </style>
 </head>
 <body>
@@ -695,27 +853,55 @@
   </div>
 
   <div id="screen3" aria-hidden="true">
-    <div class="waitlist-frame" data-node-id="1:4">
-      <div class="w-upper">
-        <p class="w-title" data-node-id="2:6">Join our Waitlist.</p>
-        <div class="w-pill" id="waitlistPill" data-node-id="2:2">
-          <input id="waitlistEmail" type="email" placeholder="Your Email Address..." autocomplete="email" spellcheck="false" />
-          <button class="w-submit" id="waitlistSubmit" type="button" aria-label="Submit">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="6" y1="18" x2="18" y2="6" />
-              <polyline points="9,6 18,6 18,15" />
-            </svg>
-          </button>
-          <div class="w-status" id="waitlistStatus"></div>
+    <div class="wl-stage" id="wlStage" data-node-id="181:43">
+      <div class="wl-blur"></div>
+
+      <!-- "Pressed" sent-message chip (Y avatar + reacted-heart indicator) -->
+      <div class="wl-chip"></div>
+      <div class="wl-chip-dot"></div>
+      <img class="wl-chip-face" src="images/waitlist/avatar-heart.png" alt="" />
+      <img class="wl-heart" src="images/waitlist/heart-reaction-bubble.svg" alt="" />
+
+      <!-- Tapback reaction bar -->
+      <div class="wl-tapback">
+        <div class="wl-tapback-row">
+          <div class="wl-rx r1" aria-label="Heart"></div>
+          <div class="wl-rx r2" aria-label="Thumbs up"></div>
+          <div class="wl-rx r3" aria-label="Thumbs down"></div>
+          <div class="wl-rx r4" aria-label="Haha"></div>
+          <div class="wl-rx r5" aria-label="Emphasize"></div>
+          <div class="wl-rx r6" aria-label="Question"></div>
         </div>
       </div>
+      <img class="wl-tapback-dot-big" src="images/waitlist/dot-big.svg" alt="" />
+      <img class="wl-tapback-dot-small" src="images/waitlist/dot-small.svg" alt="" />
 
-      <div class="w-group">
-        <div class="w-row">
-          <p class="w-wegot" data-node-id="1:5">We got</p>
-          <img class="w-you" src="images/you-only.png" alt="YOU" data-node-id="1:9" />
+      <!-- Main YOU waitlist card -->
+      <div class="wl-card" data-node-id="184:127">
+        <img class="wl-card-you" src="images/you-only.png" alt="YOU" />
+        <img class="wl-card-subtitle" src="images/you-subtitle.png" alt="Train. Eat. Recover." />
+        <div class="wl-card-title">Join our Waitlist.</div>
+        <div class="wl-pill" id="waitlistPill">
+          <input id="waitlistEmail" type="email" placeholder="Your Email Address..." autocomplete="email" spellcheck="false" />
+          <button class="wl-submit" id="waitlistSubmit" type="button" aria-label="Submit">
+            <img src="images/waitlist/submit-arrow.svg" alt="" />
+          </button>
         </div>
-        <img class="w-subtitle" src="images/you-subtitle.png" alt="Train. Eat. Recover." />
+        <p class="wl-desc">Powered by YOU Intelligence&trade;, our adaptive algorithm that learns your rhythm to build a plan that&rsquo;s only yours.</p>
+        <div class="wl-card-footer">
+          <img class="wl-card-footer-logo" src="images/you-only.png" alt="YOU" />
+          <img class="wl-card-footer-sub" src="images/you-subtitle.png" alt="Train. Eat. Recover." />
+          <div class="wl-card-footer-text">Personalized Health and Fitness</div>
+        </div>
+        <div class="wl-status" id="waitlistStatus"></div>
+      </div>
+
+      <!-- Context menu -->
+      <div class="wl-menu">
+        <div class="wl-menu-item">Save</div>
+        <div class="wl-menu-item">Reply</div>
+        <div class="wl-menu-item">Copy</div>
+        <div class="wl-menu-item">More&hellip;</div>
       </div>
     </div>
   </div>
@@ -731,7 +917,17 @@
       document.getElementById("screen2").classList.add("show");
     }, screen2AppearAt);
 
+    function fitWaitlistStage() {
+      const stage = document.getElementById("wlStage");
+      if (!stage) return;
+      const s = Math.min(window.innerWidth / 375, window.innerHeight / 812, 1);
+      stage.style.transform = `scale(${s})`;
+    }
+    window.addEventListener("resize", fitWaitlistStage);
+    fitWaitlistStage();
+
     setTimeout(() => {
+      fitWaitlistStage();
       document.getElementById("screen3").classList.add("show");
     }, screen3AppearAt);
 
