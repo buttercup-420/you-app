@@ -458,6 +458,9 @@
       /* Establish a stacking context + clip boundary for the absolute
          #screen3 inside, so the overlay can't leak past the bezel. */
       isolation: isolate;
+      /* Scale the whole phone (chat + overlay) down so it fits typical
+         desktop viewports without clipping the menu at the bottom. */
+      zoom: 0.82;
     }
     .phone-frame::before {
       /* subtle highlight across the top bezel */
