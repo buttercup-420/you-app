@@ -611,11 +611,13 @@
   @media (max-width: 499px) {
     .imsg-input { display: none; }
     #screen2 { overflow: hidden; }
-    /* Kill the auto side-margins so zoom can stretch the 375-wide chat
-       edge-to-edge. Safari computes auto margins before applying zoom, so
-       leaving margin:0 auto here produces a gray gutter on the left and
-       clips the right side (bubbles pushed flush to the edge). */
-    .imsg { margin: 0; }
+    /* Fill the viewport edge-to-edge. Dropping `zoom` here because Safari
+       computes auto margins (and some descendant layout) as if zoom were 1,
+       leaving a gutter on the left and pushing sent bubbles past the right.
+       Using width:100% + margin:0 is simpler and reliable; the chat was
+       designed at 375 so on ~375–430 wide phones bubbles just sit with
+       slightly more side-space, same as native iMessage on larger devices. */
+    .imsg { width: 100%; margin: 0; zoom: 1; }
   }
 
   /* ----- Sequential bubble pop-in (iOS send/receive animation) ----- */
