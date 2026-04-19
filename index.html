@@ -82,7 +82,7 @@
     white-space: pre;
   }
 
-  /* ---------- Screen 3: Waitlist (pixel-perfect Figma 1512x982) ---------- */
+  /* ---------- Screen 3: Waitlist (responsive) ---------- */
 
   #screen3 {
     position: fixed;
@@ -94,6 +94,8 @@
     align-items: center;
     justify-content: center;
     z-index: 10000;
+    padding: max(24px, 5vh) 20px;
+    box-sizing: border-box;
   }
 
   #screen3.show {
@@ -104,35 +106,39 @@
 
   .waitlist-frame {
     position: relative;
-    width: 1512px;
-    height: 982px;
-    background: #272727;
-    transform-origin: center center;
-    flex: none;
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(56px, 12vh, 140px);
+  }
+
+  .w-upper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(18px, 3vh, 32px);
+    width: 100%;
   }
 
   .w-title {
-    position: absolute;
-    left: 50%;
-    top: 300px;
-    transform: translateX(-50%);
     margin: 0;
     font-family: "Nunito", -apple-system, BlinkMacSystemFont, sans-serif;
     font-weight: 300;
-    font-size: 42px;
+    font-size: clamp(24px, 4.2vw, 44px);
     letter-spacing: -0.4px;
     line-height: 1;
     color: #ffffff;
     white-space: nowrap;
+    text-align: center;
   }
 
   .w-pill {
-    position: absolute;
-    left: 50%;
-    top: 392px;
-    transform: translateX(-50%);
-    width: 460px;
-    height: 60px;
+    position: relative;
+    width: min(460px, 100%);
+    height: clamp(52px, 8vw, 64px);
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.14);
@@ -154,14 +160,14 @@
     inset: 0;
     width: 100%;
     height: 100%;
-    padding: 0 56px 0 24px;
+    padding: 0 56px 0 22px;
     background: transparent;
     border: 0;
     outline: 0;
     color: #ffffff;
     font-family: "Nunito", -apple-system, BlinkMacSystemFont, "SF Pro", sans-serif;
     font-weight: 400;
-    font-size: 17px;
+    font-size: clamp(15px, 2vw, 17px);
     letter-spacing: 0.2px;
     box-sizing: border-box;
   }
@@ -174,10 +180,10 @@
   .w-submit {
     position: absolute;
     top: 50%;
-    right: 16px;
+    right: 14px;
     transform: translateY(-50%);
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     padding: 0;
     display: flex;
     align-items: center;
@@ -234,22 +240,18 @@
     color: rgba(255, 140, 140, 0.85);
   }
 
-  /* "We got YOU" group — "We got" + YOU logo on one baseline, subtitle below. */
+  /* "We got YOU" group — row plus subtitle underneath. */
   .w-group {
-    position: absolute;
-    left: 50%;
-    top: 600px;
-    transform: translateX(-50%);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 18px;
+    gap: clamp(8px, 1.4vh, 18px);
   }
 
   .w-row {
     display: flex;
     align-items: baseline;
-    gap: 24px;
+    gap: clamp(12px, 2.2vw, 24px);
     white-space: nowrap;
   }
 
@@ -257,24 +259,23 @@
     margin: 0;
     font-family: "Nunito", -apple-system, BlinkMacSystemFont, sans-serif;
     font-weight: 600;
-    font-size: 160px;
+    font-size: clamp(56px, 13vw, 160px);
     line-height: 1;
     color: #ffffff;
-    letter-spacing: -4px;
+    letter-spacing: -0.025em;
   }
 
-  /* Sized so "YOU" cap height visually matches "We got" cap height. */
   .w-you {
     display: block;
-    height: 140px;
+    height: clamp(48px, 11.5vw, 140px);
     width: auto;
     pointer-events: none;
-    transform: translateY(8px); /* align optical baseline with text */
+    transform: translateY(0.06em);
   }
 
   .w-subtitle {
     display: block;
-    height: 22px;
+    height: clamp(10px, 1.9vw, 22px);
     width: auto;
     pointer-events: none;
   }
@@ -288,18 +289,19 @@
   </div>
 
   <div id="screen3" aria-hidden="true">
-    <div class="waitlist-frame" id="waitlistFrame" data-node-id="1:4">
-      <p class="w-title" data-node-id="2:6">Join our Waitlist.</p>
-
-      <div class="w-pill" id="waitlistPill" data-node-id="2:2">
-        <input id="waitlistEmail" type="email" placeholder="Your Email Address..." autocomplete="email" spellcheck="false" />
-        <button class="w-submit" id="waitlistSubmit" type="button" aria-label="Submit">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="6" y1="18" x2="18" y2="6" />
-            <polyline points="9,6 18,6 18,15" />
-          </svg>
-        </button>
-        <div class="w-status" id="waitlistStatus"></div>
+    <div class="waitlist-frame" data-node-id="1:4">
+      <div class="w-upper">
+        <p class="w-title" data-node-id="2:6">Join our Waitlist.</p>
+        <div class="w-pill" id="waitlistPill" data-node-id="2:2">
+          <input id="waitlistEmail" type="email" placeholder="Your Email Address..." autocomplete="email" spellcheck="false" />
+          <button class="w-submit" id="waitlistSubmit" type="button" aria-label="Submit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="6" y1="18" x2="18" y2="6" />
+              <polyline points="9,6 18,6 18,15" />
+            </svg>
+          </button>
+          <div class="w-status" id="waitlistStatus"></div>
+        </div>
       </div>
 
       <div class="w-group">
@@ -370,20 +372,7 @@
       document.getElementById("screen2").classList.add("show");
     }, screen2AppearAt);
 
-    // Scale the waitlist frame (1512x982) to fit any viewport while preserving proportions.
-    function fitWaitlist() {
-      const f = document.getElementById("waitlistFrame");
-      if (!f) return;
-      const sx = window.innerWidth / 1512;
-      const sy = window.innerHeight / 982;
-      const s = Math.min(sx, sy);
-      f.style.transform = `scale(${s})`;
-    }
-    window.addEventListener("resize", fitWaitlist);
-    fitWaitlist();
-
     setTimeout(() => {
-      fitWaitlist();
       document.getElementById("screen3").classList.add("show");
     }, screen3AppearAt);
 
