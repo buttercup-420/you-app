@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <title>you</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,6 +16,14 @@
     background: #272727;
     overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Use dynamic viewport height on browsers that support it — handles
+     iOS Safari's URL bar growing/shrinking. */
+  @supports (height: 100dvh) {
+    html, body { height: 100dvh; }
   }
 
 
@@ -58,6 +66,9 @@
     color: #000000;
     font-size: 15px;
     line-height: 1.25;
+    /* On mobile, scale the 375-wide design up to fill the viewport. Uses `zoom`
+       so both visual and layout sizes scale together (fixes scroll extent). */
+    zoom: var(--fit-scale, 1);
   }
 
   /* Navigation bar */
@@ -1068,14 +1079,30 @@
     // Show the chat shell (nav, timestamp) immediately.
     document.getElementById("screen2").classList.add("show");
 
-    function fitWaitlistStage() {
+    // Responsive scale — below 500px viewport (mobile), zoom the 375-wide chat
+    // so it fills the screen on any phone (iPhone 14, Pro Max, Android, etc.).
+    // On desktop, stays at native 375 centered.
+    function fitResponsive() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      let chatScale = 1;
+      if (vw < 500) {
+        chatScale = vw / 375;
+      }
+      document.documentElement.style.setProperty("--fit-scale", chatScale);
+
       const stage = document.getElementById("wlStage");
-      if (!stage) return;
-      const s = Math.min(window.innerWidth / 375, window.innerHeight / 812, 1);
-      stage.style.transform = `scale(${s})`;
+      if (stage) {
+        const s = Math.min(vw / 375, vh / 812);
+        stage.style.transform = `scale(${s})`;
+      }
     }
-    window.addEventListener("resize", fitWaitlistStage);
-    fitWaitlistStage();
+    window.addEventListener("resize", fitResponsive);
+    window.addEventListener("orientationchange", fitResponsive);
+    fitResponsive();
+
+    // Keep the existing name around as an alias (used in the waitlist trigger)
+    const fitWaitlistStage = fitResponsive;
 
     // --- Sequential chat reveal (iOS send/receive cadence) ---
     // Messages pop in one at a time, fast. After the YOU card lands, the heart
