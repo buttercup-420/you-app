@@ -438,14 +438,33 @@
      breathing room from the phone-frame bottom + draws the iOS dash. */
   .imsg-home { display: none; }
 
+  /* Tagline above the phone mockup — desktop-only. */
+  .chat-tagline { display: none; }
+
   /* Desktop: render the chat inside a framed iPhone mockup. */
   @media (min-width: 500px) {
     #screen2 {
       background: #ececee;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 28px;
       overflow: auto;
+      padding: 40px 24px;
+      box-sizing: border-box;
+    }
+    .chat-tagline {
+      display: block;
+      margin: 0;
+      max-width: 680px;
+      text-align: center;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
+      font-size: 28px;
+      font-weight: 500;
+      letter-spacing: -0.4px;
+      line-height: 1.25;
+      color: #1a1a1a;
     }
     .phone-frame {
       flex: none;
@@ -1114,6 +1133,7 @@
 </head>
 <body>
   <div id="screen2" aria-hidden="true">
+    <p class="chat-tagline">Meet the guy who&rsquo;s been meaning to start working out since 2019 &hellip;</p>
     <div class="phone-frame">
       <div class="phone-island" aria-hidden="true"></div>
     <div class="imsg">
