@@ -63,136 +63,360 @@
     transition: opacity 450ms ease;
   }
 
-  /* ----- iMessage-style chat screen (Screen 2) ----- */
+  /* ----- Screen 2: pixel-perfect iMessage chat (Figma 375x812) ----- */
 
   #screen2 {
-    justify-content: center;
+    background: #ffffff;
+    display: block;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .imsg {
-    width: 100%;
-    max-width: 440px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 0 16px;
-    box-sizing: border-box;
+    position: relative;
+    width: 375px;
+    margin: 0 auto;
+    min-height: 100%;
+    background: #ffffff;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Helvetica Neue", sans-serif;
+    color: #000000;
+    font-size: 15px;
+    line-height: 1.25;
   }
 
-  .imsg-header {
-    padding: max(48px, env(safe-area-inset-top, 0px)) 0 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+  /* Navigation bar */
+  .imsg-nav {
+    position: relative;
+    height: 76px;
+    background: #f1f1f2;
+    box-shadow: 0 0.5px 0 #b2b2b2;
   }
 
-  .imsg-avatar {
+  .imsg-back {
+    position: absolute;
+    left: 0;
+    top: 49px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .imsg-back img {
+    width: 40px;
+    height: 40px;
+    display: block;
+  }
+
+  .imsg-avatar-wrap {
+    position: absolute;
+    left: 50%;
+    top: 7px;
+    transform: translateX(-50%);
     width: 48px;
     height: 48px;
+  }
+
+  .imsg-avatar-circle {
+    position: absolute;
+    inset: 0;
     border-radius: 50%;
-    background: linear-gradient(180deg, #585858, #3a3a3a);
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 20px;
-    letter-spacing: 0.2px;
+    background: #ed7519;
+    box-shadow: 0 5px 20px rgba(166, 166, 166, 0.3);
+  }
+
+  .imsg-avatar-face {
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 66px;
+    height: 66px;
+    pointer-events: none;
   }
 
   .imsg-name {
-    color: rgba(255, 255, 255, 0.92);
-    font-size: 13px;
-    font-weight: 400;
-    letter-spacing: 0.1px;
+    position: absolute;
+    left: 50%;
+    top: 58px;
+    transform: translateX(-50%);
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 3px;
+    font-size: 10px;
+    line-height: 15px;
+    color: #000;
+    white-space: nowrap;
   }
 
   .imsg-name .chev {
-    opacity: 0.5;
-    font-size: 11px;
+    font-size: 10px;
+    color: #9a9a9e;
     transform: translateY(-0.5px);
   }
 
-  .imsg-chat {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 20px 0 80px;
+  .imsg-facetime {
+    position: absolute;
+    right: 18px;
+    top: 18px;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+  }
+
+  .imsg-facetime img {
+    width: 26px;
+    height: 26px;
+    display: block;
+  }
+
+  /* Chat body */
+  .imsg-body {
+    position: relative;
+    padding: 0 14px 0 9px;
   }
 
   .imsg-time {
     text-align: center;
-    color: rgba(255, 255, 255, 0.42);
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.1px;
-    margin-bottom: 14px;
+    color: #909093;
+    font-size: 10px;
+    line-height: 1.25;
+    padding: 14px 0 10px;
   }
 
   .imsg-time b {
-    color: rgba(255, 255, 255, 0.68);
-    font-weight: 600;
+    font-weight: 500;
+    color: #909093;
     margin-right: 4px;
   }
 
   .imsg-row {
     display: flex;
+    margin-bottom: 2px;
+  }
+
+  .imsg-row.sent {
     justify-content: flex-end;
-    padding: 2px 0;
+  }
+
+  .imsg-row.received {
+    justify-content: flex-start;
   }
 
   .imsg-bubble {
     position: relative;
-    background: linear-gradient(180deg, #1E8DFF 0%, #0A74EE 100%);
-    color: #ffffff;
-    font-size: 17px;
-    line-height: 1.28;
-    letter-spacing: -0.2px;
-    padding: 9px 15px 10px;
+    max-width: 275px;
+    padding: 7px 12px;
     border-radius: 20px;
-    max-width: 75%;
+    font-size: 15px;
+    line-height: 1.25;
+    letter-spacing: -0.1px;
+    white-space: pre-wrap;
     word-wrap: break-word;
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
   }
 
-  .imsg-bubble.last::before {
-    content: "";
-    position: absolute;
-    z-index: 0;
-    bottom: -1px;
-    right: -7px;
-    height: 20px;
-    width: 20px;
-    background: #0A74EE;
-    border-bottom-left-radius: 16px 14px;
+  .imsg-bubble.grey {
+    background: #e9e9eb;
+    color: #000;
+    opacity: 0.9;
   }
 
-  .imsg-bubble.last::after {
+  .imsg-bubble.blue {
+    background: #0078ff;
+    color: #ffffff;
+    opacity: 0.9;
+  }
+
+  /* Bubble tails (shown only on the last bubble in a same-side cluster) */
+  .imsg-row.tail.received .imsg-bubble::before {
     content: "";
     position: absolute;
-    z-index: 1;
-    bottom: -1px;
-    right: -10px;
-    width: 10px;
-    height: 20px;
+    bottom: 0;
+    left: -5.5px;
+    width: 16.5px;
+    height: 17px;
+    background-image: url("images/imsg/shape-l.svg");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    pointer-events: none;
+  }
+
+  .imsg-row.tail.sent .imsg-bubble::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: -5.5px;
+    width: 16.5px;
+    height: 17px;
+    background-image: url("images/imsg/shape-r.svg");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scaleX(-1);
+    pointer-events: none;
+  }
+
+  /* YOU logo card attachment */
+  .imsg-card-row {
+    justify-content: flex-end;
+    padding: 6px 0 2px;
+    position: relative;
+  }
+
+  .imsg-card {
+    position: relative;
+    width: 255px;
+    height: 145px;
+    border-radius: 15px;
+    overflow: hidden;
     background: #272727;
-    border-bottom-left-radius: 10px;
   }
 
-  .imsg-status {
-    align-self: flex-end;
-    margin-top: 4px;
-    color: rgba(255, 255, 255, 0.42);
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.1px;
+  .imsg-card-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 38%;
+  }
+
+  .imsg-card-meta {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 42px;
+    background: rgba(152, 150, 150, 0.5);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 10px;
+  }
+
+  .imsg-card-meta-logo {
+    flex: none;
+    width: 70px;
+    height: 24px;
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  .imsg-card-meta-text {
+    color: #ffffff;
+    opacity: 0.9;
+    font-size: 12px;
+    font-weight: 300;
+    line-height: 1.25;
+  }
+
+  .imsg-reaction {
+    position: absolute;
+    top: -14px;
+    left: -10px;
+    width: 35px;
+    height: 27.6px;
+    z-index: 2;
+    pointer-events: none;
+    transform: scaleX(-1);
+  }
+
+  .imsg-reaction img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    transform: scaleX(-1);
+  }
+
+  .imsg-delivered {
+    text-align: right;
+    color: #909093;
+    font-size: 11px;
+    font-weight: 510;
+    line-height: 1.25;
+    padding: 4px 0 0;
+  }
+
+  /* Message input bar */
+  .imsg-input {
+    position: relative;
+    height: 48px;
+    background: #ffffff;
+    padding: 7px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-sizing: border-box;
+  }
+
+  .imsg-add {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 50%;
+    background: #e9e9eb;
+    color: #7d7f85;
+    font-size: 22px;
+    font-weight: 300;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 0 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .imsg-field {
+    flex: 1;
+    height: 36px;
+    border: 1px solid #c5c5c7;
+    border-radius: 80px;
+    padding: 0 14px 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #c5c5c7;
+    font-size: 15px;
+    letter-spacing: -0.6px;
+    line-height: 1;
+  }
+
+  .imsg-field .imsg-mic {
+    color: #b4b8bf;
+    font-size: 16px;
+  }
+
+  /* Home indicator */
+  .imsg-home {
+    position: relative;
+    height: 34px;
+    background: #ffffff;
+  }
+
+  .imsg-home::after {
+    content: "";
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 135px;
+    height: 5px;
+    border-radius: 100px;
+    background: #000000;
+  }
+
+  /* Phones narrower than 375 — scale everything down proportionally */
+  @media (max-width: 374px) {
+    .imsg {
+      width: 100%;
+      transform-origin: top center;
+    }
   }
 
   /* ---------- Screen 3: Waitlist (responsive) ---------- */
@@ -399,17 +623,74 @@
 
   <div id="screen2" aria-hidden="true">
     <div class="imsg">
-      <div class="imsg-header">
-        <div class="imsg-avatar">Y</div>
-        <div class="imsg-name">YOU <span class="chev">›</span></div>
-      </div>
-      <div class="imsg-chat">
-        <div class="imsg-time"><b>iMessage</b>Today 9:41 AM</div>
-        <div class="imsg-row">
-          <div class="imsg-bubble last">Don&rsquo;t overcomplicate it.</div>
+      <div class="imsg-nav">
+        <button class="imsg-back" aria-label="Back" type="button">
+          <img src="images/imsg/back-arrow.svg" alt="" />
+        </button>
+        <div class="imsg-avatar-wrap">
+          <div class="imsg-avatar-circle"></div>
+          <img class="imsg-avatar-face" src="images/imsg/bobby-avatar.png" alt="" />
         </div>
-        <div class="imsg-status">Delivered</div>
+        <div class="imsg-name">Bobby&nbsp;🤓&nbsp;<span class="chev">›</span></div>
+        <button class="imsg-facetime" aria-label="FaceTime" type="button">
+          <img src="images/imsg/facetime.svg" alt="" />
+        </button>
       </div>
+
+      <div class="imsg-body">
+        <div class="imsg-time"><b>Today</b>3:25 PM</div>
+
+        <div class="imsg-row received">
+          <div class="imsg-bubble grey">Ugh Dude. Summer is coming up and im so out of shape.</div>
+        </div>
+        <div class="imsg-row received tail">
+          <div class="imsg-bubble grey">idek where to start</div>
+        </div>
+
+        <div class="imsg-row sent">
+          <div class="imsg-bubble blue">Hey! I feel that</div>
+        </div>
+        <div class="imsg-row sent tail">
+          <div class="imsg-bubble blue">But i&rsquo;m excited!! Time to go to the beach 🌞</div>
+        </div>
+
+        <div class="imsg-row received">
+          <div class="imsg-bubble grey">i&rsquo;m unforch not ready</div>
+        </div>
+        <div class="imsg-row received tail">
+          <div class="imsg-bubble grey">its so hard to get into shape. all this stuff i just wish someone would tell me what to do.</div>
+        </div>
+
+        <div class="imsg-row sent tail">
+          <div class="imsg-bubble blue">Bro. I&rsquo;ve got exactly what you need</div>
+        </div>
+
+        <div class="imsg-row imsg-card-row">
+          <div class="imsg-card">
+            <span class="imsg-reaction"><img src="images/imsg/heart-reaction.svg" alt="" /></span>
+            <img class="imsg-card-img" src="images/you-logo.jpg" alt="YOU — Train. Eat. Recover." />
+            <div class="imsg-card-meta">
+              <img class="imsg-card-meta-logo" src="images/you-only.png" alt="YOU" />
+              <div class="imsg-card-meta-text">Personalized Health and Fitness</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="imsg-row sent tail">
+          <div class="imsg-bubble blue">Check this out.</div>
+        </div>
+        <div class="imsg-delivered">Delivered</div>
+      </div>
+
+      <div class="imsg-input">
+        <button class="imsg-add" aria-label="Add" type="button">+</button>
+        <div class="imsg-field">
+          <span>iMessage</span>
+          <span class="imsg-mic" aria-hidden="true">🎤</span>
+        </div>
+      </div>
+
+      <div class="imsg-home" aria-hidden="true"></div>
     </div>
   </div>
 
@@ -442,7 +723,7 @@
   <script>
     // Reveal screen2 after the 2s photo animation finishes, with a small hold.
     const HOLD_AFTER_ANIM = 350;
-    const SCREEN2_HOLD = 2000; // how long "Don't overcomplicate it." stays before waitlist.
+    const SCREEN2_HOLD = 4200; // how long the iMessage chat stays before the waitlist.
     const screen2AppearAt = 2000 + HOLD_AFTER_ANIM;
     const screen3AppearAt = screen2AppearAt + 450 + SCREEN2_HOLD;
 
