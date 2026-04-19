@@ -17,9 +17,7 @@
     padding: 0;
     height: 100%;
     width: 100%;
-    /* Match the iMessage nav strip so there's no white flash behind iOS's
-       top-of-screen return-to-app chip on mobile. */
-    background: #f1f1f2;
+    background: #ffffff;
     overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     -webkit-text-size-adjust: 100%;
@@ -616,24 +614,11 @@
      a cinematic, non-interactive chat — users just watch messages appear. */
   @media (max-width: 499px) {
     .imsg-input { display: none; }
-    /* Gray background everywhere above/behind the chat so nothing white
-       can peek through at the top (behind iOS status + return chip). */
-    #screen2 { overflow: hidden; background: #f1f1f2; }
-    /* Fill the viewport edge-to-edge. Dropping `zoom` here because Safari
-       computes auto margins as if zoom were 1, leaving a gutter on the left
-       and pushing sent bubbles past the right. width:100vw pins to the
-       actual viewport (not the parent, which can drift if overflow occurs). */
-    .imsg {
-      width: 100vw;
-      max-width: 100vw;
-      margin: 0;
-      zoom: 1;
-      overflow-x: hidden;
-    }
-    .imsg-nav { width: 100%; }
-    /* Symmetric padding on both sides so received (gray) bubbles and
-       sent (blue) bubbles read with matching inset from the screen edge. */
-    .imsg-body { padding: 0 14px; }
+    #screen2 { overflow: hidden; }
+    /* Kill the auto side-margins so zoom (set on the base .imsg) can
+       stretch the 375-wide chat edge-to-edge and scale content to fill
+       the viewport vertically. */
+    .imsg { margin: 0; }
   }
 
   /* ----- Sequential bubble pop-in (iOS send/receive animation) ----- */
