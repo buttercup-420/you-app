@@ -611,6 +611,11 @@
   @media (max-width: 499px) {
     .imsg-input { display: none; }
     #screen2 { overflow: hidden; }
+    /* Kill the auto side-margins so zoom can stretch the 375-wide chat
+       edge-to-edge. Safari computes auto margins before applying zoom, so
+       leaving margin:0 auto here produces a gray gutter on the left and
+       clips the right side (bubbles pushed flush to the edge). */
+    .imsg { margin: 0; }
   }
 
   /* ----- Sequential bubble pop-in (iOS send/receive animation) ----- */
