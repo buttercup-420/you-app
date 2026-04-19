@@ -498,25 +498,28 @@
     pointer-events: auto;
   }
 
-  /* Stage = the 375x812 phone frame that everything positions against. */
+  /* Stage = the 375x812 phone frame that everything positions against.
+     Uses `zoom` (matching the chat's zoom) so the overlay scales in lockstep
+     with the iMessage bubbles underneath on any phone width. */
   .wl-stage {
     position: relative;
     width: 375px;
     height: 812px;
-    transform-origin: top center;
+    zoom: var(--fit-scale, 1);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Helvetica Neue", sans-serif;
   }
 
-  /* Frosted blur over the chat below (screen2 stays rendered underneath). */
+  /* Frosted blur over the chat below. Lives outside the stage so it always
+     covers the full viewport regardless of stage scaling. Fades to fully
+     transparent at the bottom so there's no hard cut-off edge. */
   .wl-blur {
-    position: absolute;
-    left: 0;
-    top: -10px;
-    width: 375px;
-    height: 811px;
+    position: fixed;
+    inset: 0;
     background: rgba(250, 250, 250, 0);
     backdrop-filter: blur(0);
     -webkit-backdrop-filter: blur(0);
+    mask-image: linear-gradient(to bottom, black 0%, black 62%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 62%, transparent 100%);
     transition:
       background 420ms cubic-bezier(0.4, 0, 0.2, 1),
       backdrop-filter 420ms cubic-bezier(0.4, 0, 0.2, 1),
@@ -1022,8 +1025,8 @@
   </div>
 
   <div id="screen3" aria-hidden="true">
+    <div class="wl-blur"></div>
     <div class="wl-stage" id="wlStage" data-node-id="181:43">
-      <div class="wl-blur"></div>
 
       <!-- "Pressed" sent-message chip (Y avatar + reacted-heart indicator) -->
       <div class="wl-chip"></div>
@@ -1084,18 +1087,11 @@
     // On desktop, stays at native 375 centered.
     function fitResponsive() {
       const vw = window.innerWidth;
-      const vh = window.innerHeight;
       let chatScale = 1;
       if (vw < 500) {
         chatScale = vw / 375;
       }
       document.documentElement.style.setProperty("--fit-scale", chatScale);
-
-      const stage = document.getElementById("wlStage");
-      if (stage) {
-        const s = Math.min(vw / 375, vh / 812);
-        stage.style.transform = `scale(${s})`;
-      }
     }
     window.addEventListener("resize", fitResponsive);
     window.addEventListener("orientationchange", fitResponsive);
