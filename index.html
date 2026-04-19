@@ -485,6 +485,11 @@
       border-radius: 44px;
       overflow: hidden;
     }
+    /* Contain the pressed overlay to the phone frame instead of the whole
+       viewport — #screen3 now lives inside .phone-frame, so switching to
+       position:absolute + the frame's overflow:hidden clips it cleanly. */
+    #screen3 { position: absolute; }
+    .wl-blur { position: absolute; }
   }
 
   /* Phones narrower than 375 — scale everything down proportionally */
@@ -1127,10 +1132,8 @@
       </div>
 
     </div>
-    </div>
-  </div>
 
-  <div id="screen3" aria-hidden="true">
+    <div id="screen3" aria-hidden="true">
     <div class="wl-blur"></div>
     <div class="wl-stage" id="wlStage" data-node-id="181:43">
 
@@ -1180,6 +1183,8 @@
         <div class="wl-menu-item">Copy</div>
         <div class="wl-menu-item">More&hellip;</div>
       </div>
+    </div>
+    </div>
     </div>
   </div>
 
