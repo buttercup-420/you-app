@@ -420,6 +420,73 @@
     display: block;
   }
 
+  /* Phone frame wrapper — invisible pass-through on mobile, iPhone mockup
+     on desktop. Never touched for the mobile layout. */
+  .phone-frame {
+    position: relative;
+    width: 375px;
+    margin: 0 auto;
+    min-height: 100%;
+  }
+  .phone-island { display: none; }
+
+  /* Desktop: render the chat inside a framed iPhone mockup. */
+  @media (min-width: 500px) {
+    #screen2 {
+      background: #ececee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+    }
+    .phone-frame {
+      flex: none;
+      width: 395px;
+      height: 820px;
+      min-height: 0;
+      margin: 0;
+      padding: 0;
+      background: #0a0a0a;
+      border: 10px solid #0a0a0a;
+      border-radius: 56px;
+      box-sizing: border-box;
+      box-shadow:
+        0 0 0 2px #2a2a2c,
+        0 40px 80px -20px rgba(0, 0, 0, 0.35),
+        0 10px 24px rgba(0, 0, 0, 0.18);
+      overflow: hidden;
+    }
+    .phone-frame::before {
+      /* subtle highlight across the top bezel */
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    }
+    .phone-island {
+      display: block;
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 118px;
+      height: 34px;
+      border-radius: 100px;
+      background: #000;
+      z-index: 20;
+    }
+    .imsg {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      margin: 0;
+      border-radius: 44px;
+      overflow: hidden;
+    }
+  }
+
   /* Phones narrower than 375 — scale everything down proportionally */
   @media (max-width: 374px) {
     .imsg {
@@ -996,6 +1063,8 @@
 </head>
 <body>
   <div id="screen2" aria-hidden="true">
+    <div class="phone-frame">
+      <div class="phone-island" aria-hidden="true"></div>
     <div class="imsg">
       <div class="imsg-nav">
         <button class="imsg-back" aria-label="Back" type="button">
@@ -1073,6 +1142,7 @@
         </div>
       </div>
 
+    </div>
     </div>
   </div>
 
