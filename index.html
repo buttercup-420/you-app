@@ -172,7 +172,18 @@
 
   .imsg-row {
     display: flex;
-    margin-bottom: 2px;
+    margin-top: 8px; /* cluster break default (different sender) */
+  }
+
+  /* Same-side consecutive bubbles stack tight (iMessage cluster) */
+  .imsg-row.sent + .imsg-row.sent,
+  .imsg-row.received + .imsg-row.received {
+    margin-top: 2px;
+  }
+
+  /* First message has no extra gap after the timestamp */
+  .imsg-body .imsg-row:first-of-type {
+    margin-top: 0;
   }
 
   .imsg-row.sent {
@@ -301,10 +312,10 @@
   /* Heart tapback — sits on top of the card, trailing dots point off to the left */
   .imsg-reaction {
     position: absolute;
-    top: -18px;
-    left: -18px;
-    width: 42px;
-    height: 42px;
+    top: -14px;
+    left: -12px;
+    width: 34px;
+    height: 34px;
     z-index: 3;
     pointer-events: none;
     transform: scaleX(-1);
@@ -322,7 +333,7 @@
     font-size: 11px;
     font-weight: 510;
     line-height: 1.25;
-    padding: 4px 0 0;
+    margin-top: 4px;
   }
 
   /* Message input bar */
