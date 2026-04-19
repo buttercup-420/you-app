@@ -13,17 +13,18 @@
     padding: 0;
     height: 100%;
     width: 100%;
-    background: #272727;
+    background: #ffffff;
     overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Use dynamic viewport height on browsers that support it — handles
-     iOS Safari's URL bar growing/shrinking. */
-  @supports (height: 100dvh) {
-    html, body { height: 100dvh; }
+  /* Use large viewport height — always the full screen, including the area
+     behind Safari's bottom URL bar. Avoids the hard-edge seam that appears
+     when 100dvh shrinks with the URL bar's state. */
+  @supports (height: 100lvh) {
+    html, body { height: 100lvh; }
   }
 
 
@@ -82,7 +83,7 @@
   .imsg-back {
     position: absolute;
     left: 0;
-    top: 49px;
+    top: 11px;
     width: 40px;
     height: 40px;
     padding: 0;
@@ -393,14 +394,26 @@
   }
 
   .imsg-field .imsg-mic {
+    flex: none;
+    width: 14px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: #b4b8bf;
-    font-size: 16px;
   }
 
-  /* Home indicator */
+  .imsg-field .imsg-mic svg {
+    width: 14px;
+    height: 20px;
+    display: block;
+  }
+
+  /* Home indicator — include safe-area-inset so the black pill stays above
+     Safari's URL bar and the white background continues under it. */
   .imsg-home {
     position: relative;
-    height: 34px;
+    height: calc(34px + env(safe-area-inset-bottom, 0px));
     background: #ffffff;
   }
 
@@ -828,11 +841,11 @@
     border-bottom: 0;
   }
 
-  /* Status line (success / error feedback) */
+  /* Status line (success / error feedback) — sits right under the email pill. */
   .wl-status {
     position: absolute;
     left: 50%;
-    top: 295px;
+    top: 190px;
     transform: translateX(-50%);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
     font-size: 9px;
@@ -1016,7 +1029,14 @@
         <button class="imsg-add" aria-label="Add" type="button">+</button>
         <div class="imsg-field">
           <span>iMessage</span>
-          <span class="imsg-mic" aria-hidden="true">🎤</span>
+          <span class="imsg-mic" aria-hidden="true">
+            <svg viewBox="0 0 14 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3.75" y="1" width="6.5" height="11" rx="3.25" fill="#b4b8bf"/>
+              <path d="M1.75 9.25C1.75 12.15 4.1 14.5 7 14.5C9.9 14.5 12.25 12.15 12.25 9.25" stroke="#b4b8bf" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+              <line x1="7" y1="15" x2="7" y2="18.5" stroke="#b4b8bf" stroke-width="1.4" stroke-linecap="round"/>
+              <line x1="4" y1="18.5" x2="10" y2="18.5" stroke="#b4b8bf" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </span>
         </div>
       </div>
 
