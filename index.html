@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<!-- Match the iMessage nav color so iOS's top status area + "return to app"
+     chip blend with the page instead of rendering on a white background. -->
+<meta name="theme-color" content="#f1f1f2" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <title>you</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +17,9 @@
     padding: 0;
     height: 100%;
     width: 100%;
-    background: #ffffff;
+    /* Match the iMessage nav strip so there's no white flash behind iOS's
+       top-of-screen return-to-app chip on mobile. */
+    background: #f1f1f2;
     overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     -webkit-text-size-adjust: 100%;
