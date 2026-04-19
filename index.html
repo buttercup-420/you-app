@@ -697,6 +697,8 @@
     transform: translateX(-50%);
     width: 166px;
     height: 26px;
+    margin: 0;
+    padding: 0;
     border-radius: 255px;
     background: rgba(131, 132, 133, 0.7);
     backdrop-filter: blur(20px);
@@ -728,13 +730,29 @@
     color: rgba(255, 255, 255, 0.65);
   }
 
+  /* Kill iOS Safari's yellow autofill highlight — keep the translucent pill
+     look and white text after Safari auto-fills an email. */
+  .wl-pill input:-webkit-autofill,
+  .wl-pill input:-webkit-autofill:hover,
+  .wl-pill input:-webkit-autofill:focus,
+  .wl-pill input:-webkit-autofill:active {
+    -webkit-text-fill-color: #ffffff;
+    caret-color: #ffffff;
+    -webkit-box-shadow: 0 0 0 1000px transparent inset;
+    box-shadow: 0 0 0 1000px transparent inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Enlarge tap target so the arrow is reliably hittable after iOS autofill
+     (visual arrow stays 10x10; the button itself is 28x28). z-index ensures
+     taps land on the button, not the input that covers the pill beneath. */
   .wl-submit {
     position: absolute;
     top: 50%;
-    right: 8px;
+    right: 1px;
     transform: translateY(-50%);
-    width: 14px;
-    height: 14px;
+    width: 28px;
+    height: 28px;
     padding: 0;
     background: transparent;
     border: 0;
@@ -742,12 +760,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 2;
+    -webkit-appearance: none;
+    appearance: none;
   }
 
   .wl-submit img {
     width: 10px;
     height: 10px;
     display: block;
+    pointer-events: none;
   }
 
   .wl-desc {
@@ -1073,12 +1095,12 @@
         <img class="wl-card-you" src="images/you-only.png" alt="YOU" />
         <img class="wl-card-subtitle" src="images/you-subtitle.png" alt="Train. Eat. Recover." />
         <div class="wl-card-title">Join our Waitlist.</div>
-        <div class="wl-pill" id="waitlistPill">
-          <input id="waitlistEmail" type="email" placeholder="Your Email Address..." autocomplete="email" spellcheck="false" />
-          <button class="wl-submit" id="waitlistSubmit" type="button" aria-label="Submit">
+        <form class="wl-pill" id="waitlistPill" novalidate>
+          <input id="waitlistEmail" name="email" type="email" placeholder="Your Email Address..." autocomplete="email" autocapitalize="off" spellcheck="false" inputmode="email" enterkeyhint="go" />
+          <button class="wl-submit" id="waitlistSubmit" type="submit" aria-label="Submit">
             <img src="images/waitlist/submit-arrow.svg" alt="" />
           </button>
-        </div>
+        </form>
         <p class="wl-desc">Powered by YOU Intelligence&trade;, our adaptive algorithm that learns your rhythm to build a plan that&rsquo;s only yours.</p>
         <div class="wl-card-footer">
           <img class="wl-card-footer-logo" src="images/you-only.png" alt="YOU" />
@@ -1200,12 +1222,9 @@
       }
     }
 
-    submitBtn.addEventListener("click", submitWaitlist);
-    emailInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        submitWaitlist();
-      }
+    pillEl.addEventListener("submit", (e) => {
+      e.preventDefault();
+      submitWaitlist();
     });
   </script>
 
