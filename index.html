@@ -631,9 +631,9 @@
       overflow-x: hidden;
     }
     .imsg-nav { width: 100%; }
-    /* Breathing room on both sides so bubbles (and the tail that pokes
-       outside them) don't sit flush against the screen edge. */
-    .imsg-body { padding: 0 18px 0 14px; }
+    /* Symmetric padding on both sides so received (gray) bubbles and
+       sent (blue) bubbles read with matching inset from the screen edge. */
+    .imsg-body { padding: 0 14px; }
   }
 
   /* ----- Sequential bubble pop-in (iOS send/receive animation) ----- */
