@@ -525,16 +525,13 @@
   }
 
   /* Frosted blur over the chat below. Lives outside the stage so it always
-     covers the full viewport regardless of stage scaling. Fades to fully
-     transparent at the bottom so there's no hard cut-off edge. */
+     covers the full viewport regardless of stage scaling. */
   .wl-blur {
     position: fixed;
     inset: 0;
     background: rgba(250, 250, 250, 0);
     backdrop-filter: blur(0);
     -webkit-backdrop-filter: blur(0);
-    mask-image: linear-gradient(to bottom, black 0%, black 88%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 88%, transparent 100%);
     transition:
       background 420ms cubic-bezier(0.4, 0, 0.2, 1),
       backdrop-filter 420ms cubic-bezier(0.4, 0, 0.2, 1),
