@@ -1316,6 +1316,93 @@
     // Show the chat shell (nav, timestamp) immediately.
     document.getElementById("screen2").classList.add("show");
 
+    // --- Web Audio sound effects (iMessage-style, synthesized inline) ------
+    // Browser autoplay policy blocks audio until first user gesture, so we
+    // lazy-create the AudioContext and resume it on first pointer/key event.
+    // All sounds are short (<400ms) oscillator/noise bursts — no files, no
+    // lag, zero network cost.
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    function getCtx() {
+      if (!AudioCtx) return null;
+      if (!audioCtx) audioCtx = new AudioCtx();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      return audioCtx;
+    }
+    function unlockAudio() { getCtx(); }
+    document.addEventListener("pointerdown", unlockAudio, { once: true });
+    document.addEventListener("keydown", unlockAudio, { once: true });
+    document.addEventListener("touchstart", unlockAudio, { once: true, passive: true });
+
+    // Outgoing whoosh — rising band-passed noise sweep.
+    function playSend() {
+      const ctx = getCtx(); if (!ctx) return;
+      const t = ctx.currentTime;
+      const len = 0.28;
+      const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * len), ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * 0.5;
+      const src = ctx.createBufferSource(); src.buffer = buf;
+      const bp = ctx.createBiquadFilter();
+      bp.type = "bandpass"; bp.Q.value = 1.1;
+      bp.frequency.setValueAtTime(700, t);
+      bp.frequency.exponentialRampToValueAtTime(5200, t + len);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.18, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+      src.connect(bp).connect(g).connect(ctx.destination);
+      src.start(t); src.stop(t + len + 0.02);
+    }
+
+    // Incoming pop — short descending sine chirp.
+    function playReceive() {
+      const ctx = getCtx(); if (!ctx) return;
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(1500, t);
+      osc.frequency.exponentialRampToValueAtTime(760, t + 0.14);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.22, t + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+      osc.connect(g).connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.22);
+    }
+
+    // Tapback reaction — delicate high bell.
+    function playTapback() {
+      const ctx = getCtx(); if (!ctx) return;
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(2000, t);
+      osc.frequency.exponentialRampToValueAtTime(1500, t + 0.22);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.12, t + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+      osc.connect(g).connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.34);
+    }
+
+    // Long-press / overlay open — low thud + subtle sweep.
+    function playPress() {
+      const ctx = getCtx(); if (!ctx) return;
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(180, t);
+      osc.frequency.exponentialRampToValueAtTime(55, t + 0.35);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.16, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
+      osc.connect(g).connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.44);
+    }
+
     // Responsive scale — below 500px viewport (mobile), zoom the 375-wide chat
     // so it fills the screen on any phone (iPhone 14, Pro Max, Android, etc.).
     // On desktop, stays at native 375 centered.
@@ -1361,19 +1448,29 @@
       let t = INITIAL_DELAY;
       items.forEach((el) => {
         const isCard = el.classList.contains("imsg-card-row");
-        setTimeout(() => el.classList.add("in"), t);
+        const isSent = el.classList.contains("sent") || isCard;
+        const isReceived = el.classList.contains("received");
+        setTimeout(() => {
+          el.classList.add("in");
+          if (isSent) playSend();
+          else if (isReceived) playReceive();
+        }, t);
         t += isCard ? CARD_GAP : GAP;
       });
 
       const heartEl = document.querySelector("#screen2 .imsg-reaction");
       const heartAt = t + POST_CONVO;
-      setTimeout(() => heartEl && heartEl.classList.add("in"), heartAt);
+      setTimeout(() => {
+        if (heartEl) heartEl.classList.add("in");
+        playTapback();
+      }, heartAt);
 
       const waitlistAt = heartAt + HEART_ANIM + HEART_SETTLE;
       setTimeout(() => {
         fitWaitlistStage();
         document.body.classList.add("pressed");
         document.getElementById("screen3").classList.add("show");
+        playPress();
       }, waitlistAt);
     }
 
