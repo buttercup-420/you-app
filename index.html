@@ -180,13 +180,19 @@
     padding: 0;
     background: transparent;
     border: 0;
+    cursor: pointer;
   }
 
-  .imsg-facetime img {
+  .imsg-facetime svg {
     width: 26px;
     height: 26px;
     display: block;
   }
+
+  /* Bell toggles between muted (default) and on states. */
+  .imsg-facetime .icon-bell-on { display: none; }
+  .imsg-facetime[aria-pressed="true"] .icon-bell-muted { display: none; }
+  .imsg-facetime[aria-pressed="true"] .icon-bell-on { display: block; }
 
   /* Chat body */
   .imsg-body {
@@ -1187,8 +1193,17 @@
           <img class="imsg-avatar-face" src="images/imsg/bobby-avatar.png" alt="" />
         </div>
         <div class="imsg-name">Bobby&nbsp;🤓&nbsp;<span class="chev">›</span></div>
-        <button class="imsg-facetime" aria-label="FaceTime" type="button">
-          <img src="images/imsg/facetime.svg" alt="" />
+        <button class="imsg-facetime" id="soundToggle" type="button" aria-label="Turn sound on" aria-pressed="false">
+          <svg class="icon-bell-muted" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M13 3.2c-3.6 0-6.5 2.9-6.5 6.5v3.8L4.6 17v0.9h16.8V17l-1.9-3.5V9.7c0-3.6-2.9-6.5-6.5-6.5Z" stroke="#3478F6" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
+            <path d="M10.6 20.7c0 1.3 1.1 2.4 2.4 2.4s2.4-1.1 2.4-2.4" stroke="#3478F6" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+            <line x1="4.2" y1="22.4" x2="22.4" y2="4.2" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="4.2" y1="22.4" x2="22.4" y2="4.2" stroke="#3478F6" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <svg class="icon-bell-on" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M13 3.2c-3.6 0-6.5 2.9-6.5 6.5v3.8L4.6 17v0.9h16.8V17l-1.9-3.5V9.7c0-3.6-2.9-6.5-6.5-6.5Z" stroke="#3478F6" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
+            <path d="M10.6 20.7c0 1.3 1.1 2.4 2.4 2.4s2.4-1.1 2.4-2.4" stroke="#3478F6" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+          </svg>
         </button>
       </div>
 
@@ -1323,19 +1338,17 @@
     // lag, zero network cost.
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
+    let soundEnabled = false;
     function getCtx() {
       if (!AudioCtx) return null;
       if (!audioCtx) audioCtx = new AudioCtx();
       if (audioCtx.state === "suspended") audioCtx.resume();
       return audioCtx;
     }
-    function unlockAudio() { getCtx(); }
-    document.addEventListener("pointerdown", unlockAudio, { once: true });
-    document.addEventListener("keydown", unlockAudio, { once: true });
-    document.addEventListener("touchstart", unlockAudio, { once: true, passive: true });
 
     // Outgoing whoosh — rising band-passed noise sweep.
     function playSend() {
+      if (!soundEnabled) return;
       const ctx = getCtx(); if (!ctx) return;
       const t = ctx.currentTime;
       const len = 0.28;
@@ -1357,6 +1370,7 @@
 
     // Incoming pop — short descending sine chirp.
     function playReceive() {
+      if (!soundEnabled) return;
       const ctx = getCtx(); if (!ctx) return;
       const t = ctx.currentTime;
       const osc = ctx.createOscillator();
@@ -1373,6 +1387,7 @@
 
     // Tapback reaction — delicate high bell.
     function playTapback() {
+      if (!soundEnabled) return;
       const ctx = getCtx(); if (!ctx) return;
       const t = ctx.currentTime;
       const osc = ctx.createOscillator();
@@ -1389,6 +1404,7 @@
 
     // Long-press / overlay open — low thud + subtle sweep.
     function playPress() {
+      if (!soundEnabled) return;
       const ctx = getCtx(); if (!ctx) return;
       const t = ctx.currentTime;
       const osc = ctx.createOscillator();
@@ -1401,6 +1417,20 @@
       g.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
       osc.connect(g).connect(ctx.destination);
       osc.start(t); osc.stop(t + 0.44);
+    }
+
+    // Bell toggle — flips sound on/off. Plays a confirmation chirp on enable.
+    const soundBtn = document.getElementById("soundToggle");
+    if (soundBtn) {
+      soundBtn.addEventListener("click", () => {
+        soundEnabled = !soundEnabled;
+        soundBtn.setAttribute("aria-pressed", soundEnabled ? "true" : "false");
+        soundBtn.setAttribute("aria-label", soundEnabled ? "Turn sound off" : "Turn sound on");
+        if (soundEnabled) {
+          getCtx();
+          playReceive();
+        }
+      });
     }
 
     // Responsive scale — below 500px viewport (mobile), zoom the 375-wide chat
