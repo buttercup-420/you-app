@@ -18,30 +18,6 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
 
-  #stage {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-  }
-
-  .pic {
-    position: absolute;
-    object-fit: cover;
-    opacity: 0;
-    transform: scale(1.02);
-    will-change: transform, opacity;
-    display: block;
-  }
-
-  .pic.in {
-    animation: snap 220ms cubic-bezier(0.22, 0.9, 0.3, 1) forwards;
-  }
-
-  @keyframes snap {
-    0%   { opacity: 0; transform: scale(1.04); }
-    100% { opacity: 1; transform: scale(1); }
-  }
 
   /* ---------- Screen 2: full-bleed headline ---------- */
 
@@ -777,8 +753,6 @@
 </style>
 </head>
 <body>
-  <div id="stage"></div>
-
   <div id="screen2" aria-hidden="true">
     <div class="imsg">
       <div class="imsg-nav">
@@ -907,15 +881,11 @@
   </div>
 
   <script>
-    // Reveal screen2 after the 2s photo animation finishes, with a small hold.
-    const HOLD_AFTER_ANIM = 350;
-    const SCREEN2_HOLD = 4200; // how long the iMessage chat stays before the waitlist.
-    const screen2AppearAt = 2000 + HOLD_AFTER_ANIM;
-    const screen3AppearAt = screen2AppearAt + 450 + SCREEN2_HOLD;
+    // iMessage chat shows on load; after a hold, the waitlist overlay fades in.
+    const SCREEN2_HOLD = 4200;
+    const screen3AppearAt = SCREEN2_HOLD;
 
-    setTimeout(() => {
-      document.getElementById("screen2").classList.add("show");
-    }, screen2AppearAt);
+    document.getElementById("screen2").classList.add("show");
 
     function fitWaitlistStage() {
       const stage = document.getElementById("wlStage");
@@ -985,172 +955,5 @@
     });
   </script>
 
-  <script>
-    const images = [
-      "images/034bdf8324848277d5925f8bff0b9fc0.jpg",
-      "images/0d8f4b53de447f2ea09153bee09f0fa3.jpg",
-      "images/0f247740077e3255c0eba3298e10bf59.jpg",
-      "images/225c1964789b42cd1c440326fa1ee0ce.jpg",
-      "images/3f143b1371e5d27db590187fe088b581.jpg",
-      "images/672e08132315e8639fdd0913effa992e.jpg",
-      "images/72873437-12266617-image-m-187_1688558900413.avif",
-      "images/7b7617dfd89ab1da435777207a9f3420.jpg",
-      "images/9778f0b23b819247de149386903d5907.jpg",
-      "images/a79c9a918bb78c244556c89c0203d660.jpg",
-      "images/celeb1.webp",
-      "images/David-Beckham-with-celebrity-trainer-Bobby-Rich.webp",
-      "images/e5dd6e866262-khloe-suele-entrenar-con-una-bosu-ball.jpg",
-      "images/f1839cb8753796a079b4868f846bbfb9.jpg",
-      "images/handwritten-grocery-lists-still-the-way-to-go-v0-oukuctktoppe1.webp",
-      "images/images.jpeg",
-      "images/iStock-1567549846.jpg",
-      "images/personal trainer-carousel.jpg",
-      "images/what-is-a-dietitian.jpg"
-    ];
-
-    const stage = document.getElementById("stage");
-
-    // --- Deterministic PRNG so the sequence feels hand-composed but stable per load. ---
-    function mulberry32(seed) {
-      return function() {
-        seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
-        let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-      };
-    }
-    const rng = mulberry32(7);
-
-    function shuffled(arr) {
-      const a = arr.slice();
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(rng() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
-
-    // Preload so the animation isn't blocked on network.
-    const preloads = images.map(src => new Promise(resolve => {
-      const img = new Image();
-      img.onload = img.onerror = () => resolve();
-      img.src = src;
-    }));
-
-    Promise.all(preloads).then(start);
-
-    function computeGrid() {
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      // Target tile size — smaller on mobile, a bit bigger on desktop.
-      const target = vw < 700 ? 180 : 340;
-      const cols = Math.max(2, Math.round(vw / target));
-      const rows = Math.max(2, Math.round(vh / target));
-      const tw = vw / cols;
-      const th = vh / rows;
-      const cells = [];
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          cells.push({ x: c * tw, y: r * th, w: tw, h: th, c, r });
-        }
-      }
-      return { cells, cols, rows, tw, th };
-    }
-
-    function placeTile(cell, src, z) {
-      const el = document.createElement("img");
-      el.src = src;
-      el.className = "pic";
-      el.alt = "";
-      el.style.left = cell.x + "px";
-      el.style.top = cell.y + "px";
-      el.style.width = cell.w + "px";
-      el.style.height = cell.h + "px";
-      el.style.zIndex = String(z);
-      stage.appendChild(el);
-      // Force the browser to commit the initial state before the class flip.
-      requestAnimationFrame(() => el.classList.add("in"));
-      return el;
-    }
-
-    function start() {
-      const { cells, tw, th } = computeGrid();
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      const pool = shuffled(images);
-      let poolIdx = 0;
-      const nextImg = () => pool[(poolIdx++) % pool.length];
-
-      // --- Build the reveal schedule. ---
-      // 1) Two seed tiles far apart (cell-aligned).
-      // 2) Fill the remaining empty cells (cell-aligned, ease-in stagger).
-      // 3) Overlap storm: many tiles at offset/scattered positions, stacking on top —
-      //    makes 19 source images feel like 50+ via density and speed.
-
-      const seedA = cells[Math.floor(rng() * cells.length)];
-      let seedB = cells[0];
-      let best = -1;
-      for (const c of cells) {
-        const d = Math.hypot(c.x - seedA.x, c.y - seedA.y);
-        if (d > best) { best = d; seedB = c; }
-      }
-
-      const remaining = shuffled(cells.filter(c => c !== seedA && c !== seedB));
-
-      // --- Timing (total = 2000ms) ---
-      const T_SEED_1 = 0;
-      const T_SEED_2 = 280;
-      const T_FILL_A = 520;
-      const T_FILL_B = 1050;
-      const T_OVER_A = 1050;
-      const T_OVER_B = 1900;
-
-      const schedule = [];
-
-      // Cell-aligned placements for seeds and grid fill.
-      schedule.push({ t: T_SEED_1, x: seedA.x, y: seedA.y, w: seedA.w, h: seedA.h });
-      schedule.push({ t: T_SEED_2, x: seedB.x, y: seedB.y, w: seedB.w, h: seedB.h });
-
-      const fillSpan = T_FILL_B - T_FILL_A;
-      const nF = remaining.length;
-      remaining.forEach((cell, i) => {
-        const p = nF <= 1 ? 1 : i / (nF - 1);
-        const eased = Math.pow(p, 1.6);
-        schedule.push({
-          t: T_FILL_A + fillSpan * eased,
-          x: cell.x, y: cell.y, w: cell.w, h: cell.h
-        });
-      });
-
-      // Overlap storm — lots of tiles at scattered offset positions.
-      // Density scales with grid size so big screens feel equally packed.
-      const overlapCount = Math.max(32, Math.round(cells.length * 3.2));
-      const overSpan = T_OVER_B - T_OVER_A;
-
-      for (let i = 0; i < overlapCount; i++) {
-        // Size varies slightly — mostly tile-sized, some smaller/larger.
-        const sizeFactor = 0.78 + rng() * 0.55; // 0.78x – 1.33x
-        const w = tw * sizeFactor;
-        const h = th * sizeFactor;
-
-        // Free-floating position (not cell-snapped). Clamp to viewport.
-        const x = Math.max(-w * 0.15, Math.min(vw - w * 0.85, rng() * vw - w / 2));
-        const y = Math.max(-h * 0.15, Math.min(vh - h * 0.85, rng() * vh - h / 2));
-
-        const p = overlapCount <= 1 ? 1 : i / (overlapCount - 1);
-        const eased = Math.pow(p, 1.15);
-
-        schedule.push({ t: T_OVER_A + overSpan * eased, x, y, w, h });
-      }
-
-      schedule.sort((a, b) => a.t - b.t);
-
-      schedule.forEach((ev, i) => {
-        setTimeout(() => {
-          placeTile({ x: ev.x, y: ev.y, w: ev.w, h: ev.h }, nextImg(), i + 1);
-        }, ev.t);
-      });
-    }
-  </script>
 </body>
 </html>
