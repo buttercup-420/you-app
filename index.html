@@ -1511,17 +1511,18 @@
     // so it fills the screen on any phone (iPhone 14, Pro Max, Android, etc.).
     // On desktop, stays at native 375 centered.
     function fitResponsive() {
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
+      // visualViewport reflects the real visual viewport Safari is painting
+      // (accounting for pinch zoom, safe areas, URL bar state). Fall back to
+      // innerWidth on older browsers.
+      const vw = (window.visualViewport && window.visualViewport.width) || window.innerWidth;
+      const vh = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
       let chatScale = 1;
       let stageScale = 1;
       if (vw < 500) {
-        // Chat always fills the viewport width so the iMessage bubbles look
-        // native on the phone. The waitlist stage also respects vertical
-        // space so the context menu never clips under Safari's URL bar.
-        // They can diverge safely — body.pressed hides the original chat
-        // card when the overlay is up, so the two don't need to align.
-        chatScale = vw / 375;
+        // +2px overcompensation so sub-pixel rounding / reported-width drift
+        // can't leave a sliver of the body background peeking at the left
+        // edge. Clipped cleanly by #screen2's overflow:hidden.
+        chatScale = (vw + 2) / 375;
         stageScale = Math.min(vw / 375, vh / 812);
       }
       document.documentElement.style.setProperty("--fit-scale", chatScale);
@@ -1529,6 +1530,9 @@
     }
     window.addEventListener("resize", fitResponsive);
     window.addEventListener("orientationchange", fitResponsive);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", fitResponsive);
+    }
     fitResponsive();
 
     // Keep the existing name around as an alias (used in the waitlist trigger)
