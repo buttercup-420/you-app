@@ -442,7 +442,7 @@
     .phone-frame {
       flex: none;
       width: 395px;
-      height: 820px;
+      height: 840px;
       min-height: 0;
       margin: 0;
       padding: 0;
@@ -455,6 +455,9 @@
         0 40px 80px -20px rgba(0, 0, 0, 0.35),
         0 10px 24px rgba(0, 0, 0, 0.18);
       overflow: hidden;
+      /* Establish a stacking context + clip boundary for the absolute
+         #screen3 inside, so the overlay can't leak past the bezel. */
+      isolation: isolate;
     }
     .phone-frame::before {
       /* subtle highlight across the top bezel */
