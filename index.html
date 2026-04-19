@@ -622,7 +622,7 @@
   .wl-chip {
     position: absolute;
     left: 146px;
-    top: 111px;
+    top: 91px;
     width: 95px;
     height: 90px;
     border-radius: 15px;
@@ -633,7 +633,7 @@
   .wl-chip-dot {
     position: absolute;
     left: 182px;
-    top: 165px;
+    top: 145px;
     width: 25px;
     height: 25px;
     border-radius: 50%;
@@ -644,7 +644,7 @@
   .wl-chip-face {
     position: absolute;
     left: 184px;
-    top: 168px;
+    top: 148px;
     width: 20px;
     height: 20px;
     object-fit: cover;
@@ -656,7 +656,7 @@
   .wl-heart {
     position: absolute;
     left: 173px;
-    top: 120px;
+    top: 100px;
     width: 40px;
     height: 40px;
     pointer-events: none;
@@ -666,7 +666,7 @@
   .wl-tapback {
     position: absolute;
     left: 52px;
-    top: 219px;
+    top: 199px;
     width: 286px;
     height: 48px;
     border-radius: 100px;
@@ -702,7 +702,7 @@
   .wl-tapback-dot-big {
     position: absolute;
     left: 68px;
-    top: 261px;
+    top: 241px;
     width: 12px;
     height: 12px;
     pointer-events: none;
@@ -711,21 +711,21 @@
   .wl-tapback-dot-small {
     position: absolute;
     left: 61px;
-    top: 270px;
+    top: 250px;
     width: 6px;
     height: 6px;
     pointer-events: none;
   }
 
   /* Main YOU card (the pressed message attachment, expanded).
-     top:277 leaves a 10px gap below the tapback bar (bottom 267), matching
-     the 10px gap between the card bottom (640) and the menu top (650). */
+     top:257 leaves a 10px gap below the tapback bar (bottom 247), matching
+     the 10px gap between the card bottom (630) and the menu top (640). */
   .wl-card {
     position: absolute;
-    left: 59px;
-    top: 277px;
-    width: 273px;
-    height: 363px;
+    left: 54px;
+    top: 257px;
+    width: 283px;
+    height: 373px;
     border-radius: 15px;
     background: #272727;
     overflow: hidden;
@@ -847,22 +847,6 @@
     pointer-events: none;
   }
 
-  .wl-desc {
-    position: absolute;
-    left: 50%;
-    top: 218px;
-    transform: translateX(-50%);
-    width: 230px;
-    margin: 0;
-    color: #ffffff;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-    font-size: 9px;
-    font-weight: 400;
-    letter-spacing: -0.04px;
-    line-height: 1.3;
-    text-align: center;
-  }
-
   .wl-card-footer {
     position: absolute;
     left: 0;
@@ -910,12 +894,12 @@
 
   /* Context menu — right-aligned to the pressed card (iOS sent-message
      behavior) so it never crowds the viewport edge on mobile.
-     card: left 59 + width 273 = right 332  →  menu: 332 - 226 = 106
-     top 650 = card bottom 640 + 10px gap (matches gap above card). */
+     card: left 54 + width 283 = right 337  →  menu: 337 - 226 = 111
+     top 640 = card bottom 630 + 10px gap (matches gap above card). */
   .wl-menu {
     position: absolute;
-    left: 106px;
-    top: 650px;
+    left: 111px;
+    top: 640px;
     width: 226px;
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.6);
@@ -1181,7 +1165,6 @@
             <img src="images/waitlist/submit-arrow.svg" alt="" />
           </button>
         </form>
-        <p class="wl-desc">Powered by YOU Intelligence&trade;, our adaptive algorithm that learns your rhythm to build a plan that&rsquo;s only yours.</p>
         <div class="wl-card-footer">
           <img class="wl-card-footer-logo" src="images/you-only.png" alt="YOU" />
           <img class="wl-card-footer-sub" src="images/you-subtitle.png" alt="Train. Eat. Recover." />
