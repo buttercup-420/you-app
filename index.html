@@ -650,13 +650,15 @@
     pointer-events: none;
   }
 
-  /* Main YOU card (the pressed message attachment, expanded) */
+  /* Main YOU card (the pressed message attachment, expanded).
+     top:277 leaves a 10px gap below the tapback bar (bottom 267), matching
+     the 10px gap between the card bottom (640) and the menu top (650). */
   .wl-card {
     position: absolute;
-    left: 60px;
-    top: 267px;
-    width: 270px;
-    height: 360px;
+    left: 59px;
+    top: 277px;
+    width: 273px;
+    height: 363px;
     border-radius: 15px;
     background: #272727;
     overflow: hidden;
@@ -841,11 +843,12 @@
 
   /* Context menu — right-aligned to the pressed card (iOS sent-message
      behavior) so it never crowds the viewport edge on mobile.
-     card: left 60 + width 270 = right 330  →  menu: 330 - 226 = 104 */
+     card: left 59 + width 273 = right 332  →  menu: 332 - 226 = 106
+     top 650 = card bottom 640 + 10px gap (matches gap above card). */
   .wl-menu {
     position: absolute;
-    left: 104px;
-    top: 637px;
+    left: 106px;
+    top: 650px;
     width: 226px;
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.6);
