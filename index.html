@@ -489,10 +489,10 @@
       overflow: hidden;
     }
     /* Contain the pressed overlay to the phone frame instead of the whole
-       viewport — #screen3 now lives inside .phone-frame, so switching to
-       position:absolute + the frame's overflow:hidden clips it cleanly. */
-    #screen3 { position: absolute; }
-    .wl-blur { position: absolute; }
+       viewport. Higher-specificity selectors so the base `.wl-blur` and
+       `#screen3` rules (defined later in the file) can't win the cascade. */
+    .phone-frame > #screen3 { position: absolute; }
+    .phone-frame .wl-blur { position: absolute; inset: 0; }
   }
 
   /* Phones narrower than 375 — scale everything down proportionally */
