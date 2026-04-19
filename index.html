@@ -242,10 +242,17 @@
     position: relative;
   }
 
-  .imsg-card {
+  /* Wrapper lets the reaction sit on top of the card without being clipped by
+     the card's overflow:hidden (which we still need for the image/footer). */
+  .imsg-card-wrap {
     position: relative;
     width: 255px;
     height: 145px;
+  }
+
+  .imsg-card {
+    position: absolute;
+    inset: 0;
     border-radius: 15px;
     overflow: hidden;
     background: #272727;
@@ -291,13 +298,14 @@
     line-height: 1.25;
   }
 
+  /* Heart tapback — sits on top of the card, trailing dots point off to the left */
   .imsg-reaction {
     position: absolute;
-    top: -14px;
-    left: -10px;
-    width: 35px;
-    height: 27.6px;
-    z-index: 2;
+    top: -18px;
+    left: -18px;
+    width: 42px;
+    height: 42px;
+    z-index: 3;
     pointer-events: none;
     transform: scaleX(-1);
   }
@@ -306,7 +314,6 @@
     width: 100%;
     height: 100%;
     display: block;
-    transform: scaleX(-1);
   }
 
   .imsg-delivered {
@@ -854,13 +861,15 @@
         </div>
 
         <div class="imsg-row imsg-card-row">
-          <div class="imsg-card">
-            <span class="imsg-reaction"><img src="images/imsg/heart-reaction.svg" alt="" /></span>
-            <img class="imsg-card-img" src="images/you-logo.jpg" alt="YOU — Train. Eat. Recover." />
-            <div class="imsg-card-meta">
-              <img class="imsg-card-meta-logo" src="images/you-only.png" alt="YOU" />
-              <div class="imsg-card-meta-text">Personalized Health and Fitness</div>
+          <div class="imsg-card-wrap">
+            <div class="imsg-card">
+              <img class="imsg-card-img" src="images/you-logo.jpg" alt="YOU — Train. Eat. Recover." />
+              <div class="imsg-card-meta">
+                <img class="imsg-card-meta-logo" src="images/you-only.png" alt="YOU" />
+                <div class="imsg-card-meta-text">Personalized Health and Fitness</div>
+              </div>
             </div>
+            <span class="imsg-reaction"><img src="images/waitlist/heart-reaction-bubble.svg" alt="" /></span>
           </div>
         </div>
 
