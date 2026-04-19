@@ -106,6 +106,24 @@
     display: block;
   }
 
+  /* Unread-count pill right next to the back chevron (iOS Messages style) */
+  .imsg-unread {
+    position: absolute;
+    left: 29px;
+    top: 22px;
+    padding: 2px 8px 3px;
+    background: #0078ff;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.2px;
+    border-radius: 100px;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
   .imsg-avatar-wrap {
     position: absolute;
     left: 50%;
@@ -1163,6 +1181,7 @@
         <button class="imsg-back" aria-label="Back" type="button">
           <img src="images/imsg/back-arrow.svg" alt="" />
         </button>
+        <span class="imsg-unread" aria-label="18 unread messages">18</span>
         <div class="imsg-avatar-wrap">
           <div class="imsg-avatar-circle"></div>
           <img class="imsg-avatar-face" src="images/imsg/bobby-avatar.png" alt="" />
