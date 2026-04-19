@@ -428,6 +428,13 @@
     }
   }
 
+  /* Mobile: hide the iMessage compose bar and lock scrolling. The page is
+     a cinematic, non-interactive chat — users just watch messages appear. */
+  @media (max-width: 499px) {
+    .imsg-input { display: none; }
+    #screen2 { overflow: hidden; }
+  }
+
   /* ----- Sequential bubble pop-in (iOS send/receive animation) ----- */
 
   .imsg-row,
