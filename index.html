@@ -67,10 +67,18 @@
     color: #000000;
     font-size: 15px;
     line-height: 1.25;
+    /* Flex column so the input bar sits at the visual bottom with no slack,
+       letting Safari's liquid-glass URL bar sit naturally over the chat's
+       white background. */
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
     /* On mobile, scale the 375-wide design up to fill the viewport. Uses `zoom`
        so both visual and layout sizes scale together (fixes scroll extent). */
     zoom: var(--fit-scale, 1);
   }
+
+  .imsg-body { flex: 1 1 auto; }
 
   /* Navigation bar */
   .imsg-nav {
@@ -348,12 +356,15 @@
     margin-top: 4px;
   }
 
-  /* Message input bar */
+  /* Message input bar — padding-bottom picks up iOS safe-area so the bar
+     sits just above Safari's URL bar on mobile, while the white background
+     continues under the URL bar for a clean liquid-glass transition. */
   .imsg-input {
     position: relative;
-    height: 48px;
+    flex: 0 0 auto;
+    min-height: 48px;
     background: #ffffff;
-    padding: 7px 12px;
+    padding: 7px 12px calc(7px + env(safe-area-inset-bottom, 0px));
     display: flex;
     align-items: center;
     gap: 8px;
@@ -407,32 +418,6 @@
     width: 14px;
     height: 20px;
     display: block;
-  }
-
-  /* Home indicator — include safe-area-inset so the black pill stays above
-     Safari's URL bar and the white background continues under it. */
-  .imsg-home {
-    position: relative;
-    height: calc(34px + env(safe-area-inset-bottom, 0px));
-    background: #ffffff;
-  }
-
-  .imsg-home::after {
-    content: "";
-    position: absolute;
-    bottom: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 135px;
-    height: 5px;
-    border-radius: 100px;
-    background: #000000;
-  }
-
-  /* On real mobile devices the OS draws its own home indicator — don't
-     duplicate it; hiding prevents a stray black bar at the bottom. */
-  @media (max-width: 499px) {
-    .imsg-home::after { display: none; }
   }
 
   /* Phones narrower than 375 — scale everything down proportionally */
@@ -529,13 +514,13 @@
   }
 
   /* Stage = the 375x812 phone frame that everything positions against.
-     Uses `zoom` (matching the chat's zoom) so the overlay scales in lockstep
-     with the iMessage bubbles underneath on any phone width. */
+     Uses --stage-scale so the overlay can shrink vertically on short
+     Safari viewports without dragging the chat's width-fill scale down. */
   .wl-stage {
     position: relative;
     width: 375px;
     height: 812px;
-    zoom: var(--fit-scale, 1);
+    zoom: var(--stage-scale, 1);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Helvetica Neue", sans-serif;
   }
 
@@ -1081,7 +1066,6 @@
         </div>
       </div>
 
-      <div class="imsg-home" aria-hidden="true"></div>
     </div>
   </div>
 
@@ -1150,13 +1134,18 @@
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       let chatScale = 1;
+      let stageScale = 1;
       if (vw < 500) {
-        // Fit both dimensions — prevents the context menu from clipping
-        // below Safari's URL bar on tall phones. Chat and stage share the
-        // same scale so they stay aligned.
-        chatScale = Math.min(vw / 375, vh / 812);
+        // Chat always fills the viewport width so the iMessage bubbles look
+        // native on the phone. The waitlist stage also respects vertical
+        // space so the context menu never clips under Safari's URL bar.
+        // They can diverge safely — body.pressed hides the original chat
+        // card when the overlay is up, so the two don't need to align.
+        chatScale = vw / 375;
+        stageScale = Math.min(vw / 375, vh / 812);
       }
       document.documentElement.style.setProperty("--fit-scale", chatScale);
+      document.documentElement.style.setProperty("--stage-scale", stageScale);
     }
     window.addEventListener("resize", fitResponsive);
     window.addEventListener("orientationchange", fitResponsive);
