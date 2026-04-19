@@ -1,0 +1,6 @@
+.DS_Store
+*.gs
+google-apps-script.*
+.vscode/
+.idea/
+*.log

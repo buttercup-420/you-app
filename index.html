@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>you</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background: #272727;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  #stage {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .pic {
+    position: absolute;
+    object-fit: cover;
+    opacity: 0;
+    transform: scale(1.02);
+    will-change: transform, opacity;
+    display: block;
+  }
+
+  .pic.in {
+    animation: snap 220ms cubic-bezier(0.22, 0.9, 0.3, 1) forwards;
+  }
+
+  @keyframes snap {
+    0%   { opacity: 0; transform: scale(1.04); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  /* ---------- Screen 2: full-bleed headline ---------- */
+
+  #screen2 {
+    position: fixed;
+    inset: 0;
+    background: #272727;
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    z-index: 9999;
+  }
+
+  #screen2.show {
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 450ms ease;
+  }
+
+  .headline {
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+    /* font-size set dynamically by JS to fill the viewport width exactly. */
+  }
+
+  .headline p {
+    margin: 0;
+    padding: 0;
+    line-height: 1.1;
+    white-space: pre;
+  }
+
+  /* ---------- Screen 3: Waitlist (pixel-perfect Figma 1512x982) ---------- */
+
+  #screen3 {
+    position: fixed;
+    inset: 0;
+    background: #272727;
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+  }
+
+  #screen3.show {
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 700ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .waitlist-frame {
+    position: relative;
+    width: 1512px;
+    height: 982px;
+    background: #272727;
+    transform-origin: center center;
+    flex: none;
+  }
+
+  .w-title {
+    position: absolute;
+    left: 50%;
+    top: 300px;
+    transform: translateX(-50%);
+    margin: 0;
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 300;
+    font-size: 42px;
+    letter-spacing: -0.4px;
+    line-height: 1;
+    color: #ffffff;
+    white-space: nowrap;
+  }
+
+  .w-pill {
+    position: absolute;
+    left: 50%;
+    top: 392px;
+    transform: translateX(-50%);
+    width: 460px;
+    height: 60px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    box-shadow:
+      0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
+      0 30px 60px -20px rgba(0, 0, 0, 0.45);
+    transition: border-color 200ms ease, background 200ms ease;
+  }
+
+  .w-pill:focus-within {
+    border-color: rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .w-pill input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0 56px 0 24px;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    color: #ffffff;
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "SF Pro", sans-serif;
+    font-weight: 400;
+    font-size: 17px;
+    letter-spacing: 0.2px;
+    box-sizing: border-box;
+  }
+
+  .w-pill input::placeholder {
+    color: rgba(255, 255, 255, 0.42);
+    font-weight: 300;
+  }
+
+  .w-submit {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.72);
+    transition: color 160ms ease, transform 160ms ease;
+  }
+
+  .w-submit:hover {
+    color: #ffffff;
+    transform: translateY(-50%) translate(1px, -1px);
+  }
+
+  .w-submit svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+  }
+
+  .w-submit:disabled {
+    opacity: 0.5;
+    cursor: default;
+    transform: translateY(-50%);
+  }
+
+  .w-pill[data-state="success"] input {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .w-status {
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 14px);
+    transform: translateX(-50%);
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 300;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+    color: rgba(255, 255, 255, 0.6);
+    opacity: 0;
+    transition: opacity 240ms ease;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .w-status.show {
+    opacity: 1;
+  }
+
+  .w-status.err {
+    color: rgba(255, 140, 140, 0.85);
+  }
+
+  /* "We got YOU" group — "We got" + YOU logo on one baseline, subtitle below. */
+  .w-group {
+    position: absolute;
+    left: 50%;
+    top: 600px;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .w-row {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    white-space: nowrap;
+  }
+
+  .w-wegot {
+    margin: 0;
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 600;
+    font-size: 160px;
+    line-height: 1;
+    color: #ffffff;
+    letter-spacing: -4px;
+  }
+
+  /* Sized so "YOU" cap height visually matches "We got" cap height. */
+  .w-you {
+    display: block;
+    height: 140px;
+    width: auto;
+    pointer-events: none;
+    transform: translateY(8px); /* align optical baseline with text */
+  }
+
+  .w-subtitle {
+    display: block;
+    height: 22px;
+    width: auto;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <div id="stage"></div>
+
+  <div id="screen2" aria-hidden="true">
+    <div class="headline" id="headline" data-node-id="1:3">
+      <p id="line1">Don&rsquo;t</p>
+      <p id="line2">overcomplicate it.</p>
+    </div>
+  </div>
+
+  <div id="screen3" aria-hidden="true">
+    <div class="waitlist-frame" id="waitlistFrame" data-node-id="1:4">
+      <p class="w-title" data-node-id="2:6">Join our Waitlist.</p>
+
+      <div class="w-pill" id="waitlistPill" data-node-id="2:2">
+        <input id="waitlistEmail" type="email" placeholder="Your Email Address..." autocomplete="email" spellcheck="false" />
+        <button class="w-submit" id="waitlistSubmit" type="button" aria-label="Submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="6" y1="18" x2="18" y2="6" />
+            <polyline points="9,6 18,6 18,15" />
+          </svg>
+        </button>
+        <div class="w-status" id="waitlistStatus"></div>
+      </div>
+
+      <div class="w-group">
+        <div class="w-row">
+          <p class="w-wegot" data-node-id="1:5">We got</p>
+          <img class="w-you" src="images/you-only.png" alt="YOU" data-node-id="1:9" />
+        </div>
+        <img class="w-subtitle" src="images/you-subtitle.png" alt="Train. Eat. Recover." />
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Fit the headline so the widest line spans the full viewport width (edge to edge).
+    function fitHeadline() {
+      const headline = document.getElementById("headline");
+      const line2 = document.getElementById("line2");
+      if (!headline || !line2) return;
+
+      // Measure at a known size, then scale proportionally to viewport width.
+      const probe = 200;
+      headline.style.fontSize = probe + "px";
+      const measured = line2.getBoundingClientRect().width;
+      if (measured === 0) return;
+
+      const scale = window.innerWidth / measured;
+      headline.style.fontSize = (probe * scale) + "px";
+    }
+
+    // Re-fit after the web font loads so metrics are accurate.
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(fitHeadline);
+    }
+    window.addEventListener("resize", fitHeadline);
+    window.addEventListener("load", fitHeadline);
+    fitHeadline();
+
+    // Reveal screen2 after the 2s photo animation finishes, with a small hold.
+    const HOLD_AFTER_ANIM = 350;
+    const SCREEN2_HOLD = 2000; // how long "Don't overcomplicate it." stays before waitlist.
+    const screen2AppearAt = 2000 + HOLD_AFTER_ANIM;
+    const screen3AppearAt = screen2AppearAt + 450 + SCREEN2_HOLD;
+
+    setTimeout(() => {
+      fitHeadline();
+      document.getElementById("screen2").classList.add("show");
+    }, screen2AppearAt);
+
+    // Scale the waitlist frame (1512x982) to fit any viewport while preserving proportions.
+    function fitWaitlist() {
+      const f = document.getElementById("waitlistFrame");
+      if (!f) return;
+      const sx = window.innerWidth / 1512;
+      const sy = window.innerHeight / 982;
+      const s = Math.min(sx, sy);
+      f.style.transform = `scale(${s})`;
+    }
+    window.addEventListener("resize", fitWaitlist);
+    fitWaitlist();
+
+    setTimeout(() => {
+      fitWaitlist();
+      document.getElementById("screen3").classList.add("show");
+    }, screen3AppearAt);
+
+    const WAITLIST_URL = "https://script.google.com/macros/s/AKfycbxai6BeMjhJXJdmTUDJmLy4bR4TfX6nhadgGSvTQV2iT1mzbU0D8fkA6g6dKKx5M-_2/exec";
+
+    const emailInput = document.getElementById("waitlistEmail");
+    const submitBtn = document.getElementById("waitlistSubmit");
+    const statusEl = document.getElementById("waitlistStatus");
+    const pillEl = document.getElementById("waitlistPill");
+
+    function setStatus(msg, isError) {
+      statusEl.textContent = msg || "";
+      statusEl.classList.toggle("err", !!isError);
+      statusEl.classList.toggle("show", !!msg);
+    }
+
+    function validEmail(s) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+    }
+
+    async function submitWaitlist() {
+      const email = (emailInput.value || "").trim();
+      if (!validEmail(email)) {
+        setStatus("Please enter a valid email.", true);
+        emailInput.focus();
+        return;
+      }
+      submitBtn.disabled = true;
+      setStatus("Submitting…", false);
+      try {
+        const body = new URLSearchParams();
+        body.append("email", email);
+        body.append("ua", navigator.userAgent || "");
+        await fetch(WAITLIST_URL, {
+          method: "POST",
+          mode: "no-cors",
+          body: body,
+        });
+        pillEl.dataset.state = "success";
+        emailInput.value = "";
+        setStatus("You're on the list.", false);
+      } catch (err) {
+        setStatus("Network error. Try again.", true);
+      } finally {
+        submitBtn.disabled = false;
+      }
+    }
+
+    submitBtn.addEventListener("click", submitWaitlist);
+    emailInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submitWaitlist();
+      }
+    });
+  </script>
+
+  <script>
+    const images = [
+      "images/034bdf8324848277d5925f8bff0b9fc0.jpg",
+      "images/0d8f4b53de447f2ea09153bee09f0fa3.jpg",
+      "images/0f247740077e3255c0eba3298e10bf59.jpg",
+      "images/225c1964789b42cd1c440326fa1ee0ce.jpg",
+      "images/3f143b1371e5d27db590187fe088b581.jpg",
+      "images/672e08132315e8639fdd0913effa992e.jpg",
+      "images/72873437-12266617-image-m-187_1688558900413.avif",
+      "images/7b7617dfd89ab1da435777207a9f3420.jpg",
+      "images/9778f0b23b819247de149386903d5907.jpg",
+      "images/a79c9a918bb78c244556c89c0203d660.jpg",
+      "images/celeb1.webp",
+      "images/David-Beckham-with-celebrity-trainer-Bobby-Rich.webp",
+      "images/e5dd6e866262-khloe-suele-entrenar-con-una-bosu-ball.jpg",
+      "images/f1839cb8753796a079b4868f846bbfb9.jpg",
+      "images/handwritten-grocery-lists-still-the-way-to-go-v0-oukuctktoppe1.webp",
+      "images/images.jpeg",
+      "images/iStock-1567549846.jpg",
+      "images/personal trainer-carousel.jpg",
+      "images/what-is-a-dietitian.jpg"
+    ];
+
+    const stage = document.getElementById("stage");
+
+    // --- Deterministic PRNG so the sequence feels hand-composed but stable per load. ---
+    function mulberry32(seed) {
+      return function() {
+        seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+        let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    const rng = mulberry32(7);
+
+    function shuffled(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // Preload so the animation isn't blocked on network.
+    const preloads = images.map(src => new Promise(resolve => {
+      const img = new Image();
+      img.onload = img.onerror = () => resolve();
+      img.src = src;
+    }));
+
+    Promise.all(preloads).then(start);
+
+    function computeGrid() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      // Target tile size — smaller on mobile, a bit bigger on desktop.
+      const target = vw < 700 ? 180 : 340;
+      const cols = Math.max(2, Math.round(vw / target));
+      const rows = Math.max(2, Math.round(vh / target));
+      const tw = vw / cols;
+      const th = vh / rows;
+      const cells = [];
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          cells.push({ x: c * tw, y: r * th, w: tw, h: th, c, r });
+        }
+      }
+      return { cells, cols, rows, tw, th };
+    }
+
+    function placeTile(cell, src, z) {
+      const el = document.createElement("img");
+      el.src = src;
+      el.className = "pic";
+      el.alt = "";
+      el.style.left = cell.x + "px";
+      el.style.top = cell.y + "px";
+      el.style.width = cell.w + "px";
+      el.style.height = cell.h + "px";
+      el.style.zIndex = String(z);
+      stage.appendChild(el);
+      // Force the browser to commit the initial state before the class flip.
+      requestAnimationFrame(() => el.classList.add("in"));
+      return el;
+    }
+
+    function start() {
+      const { cells, tw, th } = computeGrid();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const pool = shuffled(images);
+      let poolIdx = 0;
+      const nextImg = () => pool[(poolIdx++) % pool.length];
+
+      // --- Build the reveal schedule. ---
+      // 1) Two seed tiles far apart (cell-aligned).
+      // 2) Fill the remaining empty cells (cell-aligned, ease-in stagger).
+      // 3) Overlap storm: many tiles at offset/scattered positions, stacking on top —
+      //    makes 19 source images feel like 50+ via density and speed.
+
+      const seedA = cells[Math.floor(rng() * cells.length)];
+      let seedB = cells[0];
+      let best = -1;
+      for (const c of cells) {
+        const d = Math.hypot(c.x - seedA.x, c.y - seedA.y);
+        if (d > best) { best = d; seedB = c; }
+      }
+
+      const remaining = shuffled(cells.filter(c => c !== seedA && c !== seedB));
+
+      // --- Timing (total = 2000ms) ---
+      const T_SEED_1 = 0;
+      const T_SEED_2 = 280;
+      const T_FILL_A = 520;
+      const T_FILL_B = 1050;
+      const T_OVER_A = 1050;
+      const T_OVER_B = 1900;
+
+      const schedule = [];
+
+      // Cell-aligned placements for seeds and grid fill.
+      schedule.push({ t: T_SEED_1, x: seedA.x, y: seedA.y, w: seedA.w, h: seedA.h });
+      schedule.push({ t: T_SEED_2, x: seedB.x, y: seedB.y, w: seedB.w, h: seedB.h });
+
+      const fillSpan = T_FILL_B - T_FILL_A;
+      const nF = remaining.length;
+      remaining.forEach((cell, i) => {
+        const p = nF <= 1 ? 1 : i / (nF - 1);
+        const eased = Math.pow(p, 1.6);
+        schedule.push({
+          t: T_FILL_A + fillSpan * eased,
+          x: cell.x, y: cell.y, w: cell.w, h: cell.h
+        });
+      });
+
+      // Overlap storm — lots of tiles at scattered offset positions.
+      // Density scales with grid size so big screens feel equally packed.
+      const overlapCount = Math.max(32, Math.round(cells.length * 3.2));
+      const overSpan = T_OVER_B - T_OVER_A;
+
+      for (let i = 0; i < overlapCount; i++) {
+        // Size varies slightly — mostly tile-sized, some smaller/larger.
+        const sizeFactor = 0.78 + rng() * 0.55; // 0.78x – 1.33x
+        const w = tw * sizeFactor;
+        const h = th * sizeFactor;
+
+        // Free-floating position (not cell-snapped). Clamp to viewport.
+        const x = Math.max(-w * 0.15, Math.min(vw - w * 0.85, rng() * vw - w / 2));
+        const y = Math.max(-h * 0.15, Math.min(vh - h * 0.85, rng() * vh - h / 2));
+
+        const p = overlapCount <= 1 ? 1 : i / (overlapCount - 1);
+        const eased = Math.pow(p, 1.15);
+
+        schedule.push({ t: T_OVER_A + overSpan * eased, x, y, w, h });
+      }
+
+      schedule.sort((a, b) => a.t - b.t);
+
+      schedule.forEach((ev, i) => {
+        setTimeout(() => {
+          placeTile({ x: ev.x, y: ev.y, w: ev.w, h: ev.h }, nextImg(), i + 1);
+        }, ev.t);
+      });
+    }
+  </script>
+</body>
+</html>
