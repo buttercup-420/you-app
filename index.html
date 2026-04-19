@@ -616,7 +616,9 @@
      a cinematic, non-interactive chat — users just watch messages appear. */
   @media (max-width: 499px) {
     .imsg-input { display: none; }
-    #screen2 { overflow: hidden; }
+    /* Gray background everywhere above/behind the chat so nothing white
+       can peek through at the top (behind iOS status + return chip). */
+    #screen2 { overflow: hidden; background: #f1f1f2; }
     /* Fill the viewport edge-to-edge. Dropping `zoom` here because Safari
        computes auto margins as if zoom were 1, leaving a gutter on the left
        and pushing sent bubbles past the right. width:100vw pins to the
