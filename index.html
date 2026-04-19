@@ -1346,77 +1346,143 @@
       return audioCtx;
     }
 
-    // Outgoing whoosh — rising band-passed noise sweep.
+    // iOS "Swoosh" — airy noise sweep + subtle pitched air on top.
+    // Two layers: band-passed white noise sweeping up for the air, plus a
+    // high-sine sweep for the tonal shimmer. Short soft-knee attack,
+    // longer exponential tail.
     function playSend() {
       if (!soundEnabled) return;
       const ctx = getCtx(); if (!ctx) return;
       const t = ctx.currentTime;
-      const len = 0.28;
+      const len = 0.42;
+
+      // Noise layer
       const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * len), ctx.sampleRate);
       const d = buf.getChannelData(0);
-      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * 0.5;
-      const src = ctx.createBufferSource(); src.buffer = buf;
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1);
+      const noise = ctx.createBufferSource(); noise.buffer = buf;
       const bp = ctx.createBiquadFilter();
-      bp.type = "bandpass"; bp.Q.value = 1.1;
-      bp.frequency.setValueAtTime(700, t);
-      bp.frequency.exponentialRampToValueAtTime(5200, t + len);
-      const g = ctx.createGain();
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.18, t + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + len);
-      src.connect(bp).connect(g).connect(ctx.destination);
-      src.start(t); src.stop(t + len + 0.02);
+      bp.type = "bandpass"; bp.Q.value = 3.2;
+      bp.frequency.setValueAtTime(260, t);
+      bp.frequency.exponentialRampToValueAtTime(5200, t + 0.34);
+      const hp = ctx.createBiquadFilter();
+      hp.type = "highpass"; hp.frequency.value = 420;
+      const gNoise = ctx.createGain();
+      gNoise.gain.setValueAtTime(0, t);
+      gNoise.gain.linearRampToValueAtTime(0.32, t + 0.02);
+      gNoise.gain.setValueAtTime(0.28, t + 0.09);
+      gNoise.gain.exponentialRampToValueAtTime(0.0001, t + len);
+      noise.connect(bp).connect(hp).connect(gNoise).connect(ctx.destination);
+      noise.start(t); noise.stop(t + len + 0.02);
+
+      // Pitched shimmer sine sweep
+      const osc = ctx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(480, t);
+      osc.frequency.exponentialRampToValueAtTime(2600, t + 0.3);
+      const gOsc = ctx.createGain();
+      gOsc.gain.setValueAtTime(0, t);
+      gOsc.gain.linearRampToValueAtTime(0.06, t + 0.025);
+      gOsc.gain.exponentialRampToValueAtTime(0.0001, t + 0.38);
+      osc.connect(gOsc).connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.42);
     }
 
-    // Incoming pop — short descending sine chirp.
+    // iOS "Note" — soft marimba-like pluck via FM synthesis.
+    // Sine carrier with a modulator that decays the index quickly,
+    // giving the wooden tonal pluck + fast transient iOS uses.
     function playReceive() {
       if (!soundEnabled) return;
       const ctx = getCtx(); if (!ctx) return;
       const t = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(1500, t);
-      osc.frequency.exponentialRampToValueAtTime(760, t + 0.14);
+      const len = 0.55;
+      const f = 987.77; // B5 — crisp, musical
+
+      const carrier = ctx.createOscillator();
+      carrier.type = "sine";
+      carrier.frequency.value = f;
+
+      const mod = ctx.createOscillator();
+      mod.type = "sine";
+      mod.frequency.value = f * 2; // 2:1 ratio → bell/marimba-ish
+      const modGain = ctx.createGain();
+      modGain.gain.setValueAtTime(620, t);
+      modGain.gain.exponentialRampToValueAtTime(3, t + 0.22);
+      mod.connect(modGain).connect(carrier.frequency);
+
       const g = ctx.createGain();
       g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.22, t + 0.008);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
-      osc.connect(g).connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.22);
+      g.gain.linearRampToValueAtTime(0.32, t + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+
+      // Gentle HPF to keep it crisp
+      const hp = ctx.createBiquadFilter();
+      hp.type = "highpass"; hp.frequency.value = 240;
+
+      carrier.connect(g).connect(hp).connect(ctx.destination);
+      carrier.start(t); carrier.stop(t + len + 0.02);
+      mod.start(t); mod.stop(t + len + 0.02);
     }
 
-    // Tapback reaction — delicate high bell.
+    // Tapback reaction — tiny bright pluck (FM, higher register).
     function playTapback() {
       if (!soundEnabled) return;
       const ctx = getCtx(); if (!ctx) return;
       const t = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(2000, t);
-      osc.frequency.exponentialRampToValueAtTime(1500, t + 0.22);
+      const len = 0.36;
+      const f = 1864.66; // A#6
+
+      const carrier = ctx.createOscillator();
+      carrier.type = "sine";
+      carrier.frequency.value = f;
+
+      const mod = ctx.createOscillator();
+      mod.type = "sine";
+      mod.frequency.value = f * 3;
+      const modGain = ctx.createGain();
+      modGain.gain.setValueAtTime(360, t);
+      modGain.gain.exponentialRampToValueAtTime(2, t + 0.15);
+      mod.connect(modGain).connect(carrier.frequency);
+
       const g = ctx.createGain();
       g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.12, t + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
-      osc.connect(g).connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.34);
+      g.gain.linearRampToValueAtTime(0.14, t + 0.003);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+
+      carrier.connect(g).connect(ctx.destination);
+      carrier.start(t); carrier.stop(t + len + 0.02);
+      mod.start(t); mod.stop(t + len + 0.02);
     }
 
-    // Long-press / overlay open — low thud + subtle sweep.
+    // Long-press / overlay open — UI pop with a tiny low-end thud.
     function playPress() {
       if (!soundEnabled) return;
       const ctx = getCtx(); if (!ctx) return;
       const t = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(180, t);
-      osc.frequency.exponentialRampToValueAtTime(55, t + 0.35);
-      const g = ctx.createGain();
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.16, t + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
-      osc.connect(g).connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.44);
+
+      // Low pluck (thud)
+      const low = ctx.createOscillator();
+      low.type = "sine";
+      low.frequency.setValueAtTime(220, t);
+      low.frequency.exponentialRampToValueAtTime(90, t + 0.22);
+      const gLow = ctx.createGain();
+      gLow.gain.setValueAtTime(0, t);
+      gLow.gain.linearRampToValueAtTime(0.22, t + 0.008);
+      gLow.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
+      low.connect(gLow).connect(ctx.destination);
+      low.start(t); low.stop(t + 0.36);
+
+      // High tick (click)
+      const tick = ctx.createOscillator();
+      tick.type = "sine";
+      tick.frequency.setValueAtTime(3200, t);
+      tick.frequency.exponentialRampToValueAtTime(1400, t + 0.05);
+      const gTick = ctx.createGain();
+      gTick.gain.setValueAtTime(0, t);
+      gTick.gain.linearRampToValueAtTime(0.08, t + 0.003);
+      gTick.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+      tick.connect(gTick).connect(ctx.destination);
+      tick.start(t); tick.stop(t + 0.12);
     }
 
     // Bell toggle — flips sound on/off. Plays a confirmation chirp on enable.
