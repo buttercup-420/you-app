@@ -22,6 +22,8 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
+    /* Kill double-tap zoom (pinch is blocked via JS gesture listeners). */
+    touch-action: manipulation;
   }
 
   /* Use large viewport height — always the full screen, including the area
@@ -1506,6 +1508,26 @@
         }
       });
     }
+
+    // Block pinch-to-zoom on iOS Safari (ignores user-scalable=no in meta).
+    // The page is a fixed cinematic experience — scaling breaks the layout.
+    ["gesturestart", "gesturechange", "gestureend"].forEach((ev) => {
+      document.addEventListener(ev, (e) => e.preventDefault(), { passive: false });
+    });
+    // Also block double-tap zoom by swallowing the second tap within 300ms.
+    // touch-action: manipulation handles most of this, but this is a safety.
+    let lastTouchEnd = 0;
+    document.addEventListener(
+      "touchend",
+      (e) => {
+        const now = Date.now();
+        if (now - lastTouchEnd < 300 && e.target && !e.target.matches("input, textarea, button, [contenteditable]")) {
+          e.preventDefault();
+        }
+        lastTouchEnd = now;
+      },
+      { passive: false }
+    );
 
     // Responsive scale — below 500px viewport (mobile), zoom the 375-wide chat
     // so it fills the screen on any phone (iPhone 14, Pro Max, Android, etc.).
