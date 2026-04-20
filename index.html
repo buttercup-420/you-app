@@ -1527,6 +1527,11 @@
       }
       document.documentElement.style.setProperty("--fit-scale", chatScale);
       document.documentElement.style.setProperty("--stage-scale", stageScale);
+      // Belt-and-suspenders: also set zoom inline to rule out any CSS-var
+      // resolution quirks in Safari. The CSS still has zoom:var(--fit-scale)
+      // as a fallback, and desktop (vw >= 500) resets chatScale to 1.
+      const imsgEl = document.querySelector(".imsg");
+      if (imsgEl) imsgEl.style.zoom = chatScale;
     }
     window.addEventListener("resize", fitResponsive);
     window.addEventListener("orientationchange", fitResponsive);
