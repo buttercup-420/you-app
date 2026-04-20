@@ -7,7 +7,31 @@
      chip blend with the page instead of rendering on a white background. -->
 <meta name="theme-color" content="#f1f1f2" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-<title>you</title>
+<title>YOU — Train. Eat. Recover.</title>
+<meta name="description" content="Personalized training, nutrition, and recovery. Join the waitlist." />
+
+<!-- Favicon + iOS home-screen icon; this is also what iMessage / SMS /
+     most link-preview cards fall back to when OG metadata is absent. -->
+<link rel="icon" type="image/jpeg" href="images/you-icon.jpg" />
+<link rel="apple-touch-icon" href="images/you-icon.jpg" />
+
+<!-- Open Graph — rich previews in iMessage, Slack, Facebook, LinkedIn, etc. -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="YOU" />
+<meta property="og:title" content="YOU — Train. Eat. Recover." />
+<meta property="og:description" content="Personalized training, nutrition, and recovery. Join the waitlist." />
+<meta property="og:url" content="https://you.training/" />
+<meta property="og:image" content="https://you.training/images/you-logo.jpg" />
+<meta property="og:image:width" content="600" />
+<meta property="og:image:height" content="424" />
+<meta property="og:image:alt" content="YOU — Train. Eat. Recover." />
+
+<!-- Twitter card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="YOU — Train. Eat. Recover." />
+<meta name="twitter:description" content="Personalized training, nutrition, and recovery. Join the waitlist." />
+<meta name="twitter:image" content="https://you.training/images/you-logo.jpg" />
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -784,10 +808,10 @@
   /* Tapback reaction bar */
   .wl-tapback {
     position: absolute;
-    left: 52px;
+    left: 31px;
     top: 185px;
-    width: 286px;
-    height: 48px;
+    width: 314px;
+    height: 52px;
     border-radius: 100px;
     background: #ffffff;
     box-shadow: 0 10px 26px rgba(0, 0, 0, 0.1);
@@ -798,53 +822,55 @@
     left: 22px;
     top: 15px;
     display: flex;
-    gap: 27px;
+    gap: 30px;
     align-items: center;
   }
 
+  /* Reaction icons — all dimensions (icon + sprite + positions) scaled 1.1x
+     from the original so the bar reads proportional to the wider card. */
   .wl-rx {
-    width: 18px;
-    height: 19px;
+    width: 20px;
+    height: 21px;
     background-image: url("images/waitlist/tapback-reactions.png");
     background-repeat: no-repeat;
-    background-size: 207.76px 26.6px;
-    background-position-y: -2.85px;
+    background-size: 228.54px 29.26px;
+    background-position-y: -3.14px;
   }
 
-  .wl-rx.r1 { background-position-x: 0.11px; }
-  .wl-rx.r2 { background-position-x: -37.49px; }
-  .wl-rx.r3 { background-position-x: -74.59px; }
-  .wl-rx.r4 { background-position-x: -111.49px; }
-  .wl-rx.r5 { background-position-x: -148.39px; }
-  .wl-rx.r6 { background-position-x: -186.19px; }
+  .wl-rx.r1 { background-position-x: 0.12px; }
+  .wl-rx.r2 { background-position-x: -41.24px; }
+  .wl-rx.r3 { background-position-x: -82.05px; }
+  .wl-rx.r4 { background-position-x: -122.64px; }
+  .wl-rx.r5 { background-position-x: -163.23px; }
+  .wl-rx.r6 { background-position-x: -204.81px; }
 
   .wl-tapback-dot-big {
     position: absolute;
-    left: 68px;
-    top: 227px;
-    width: 12px;
-    height: 12px;
+    left: 47px;
+    top: 231px;
+    width: 13px;
+    height: 13px;
     pointer-events: none;
   }
 
   .wl-tapback-dot-small {
     position: absolute;
-    left: 61px;
-    top: 236px;
-    width: 6px;
-    height: 6px;
+    left: 40px;
+    top: 240px;
+    width: 7px;
+    height: 7px;
     pointer-events: none;
   }
 
   /* Main YOU card (the pressed message attachment, expanded).
      top:243 leaves a 10px gap below the tapback bar (bottom 233), matching
-     the 10px gap between the card bottom (643) and the menu top (653). */
+     the 10px gap between the card bottom (583) and the menu top (593). */
   .wl-card {
     position: absolute;
     left: 28px;
     top: 243px;
     width: 319px;
-    height: 400px;
+    height: 340px;
     border-radius: 15px;
     background: #272727;
     overflow: hidden;
@@ -854,7 +880,7 @@
   .wl-card-you {
     position: absolute;
     left: 50%;
-    top: 44px;
+    top: 40px;
     transform: translateX(-50%);
     height: 56px;
     width: auto;
@@ -864,7 +890,7 @@
   .wl-card-subtitle {
     position: absolute;
     left: 50%;
-    top: 110px;
+    top: 105px;
     transform: translateX(-50%);
     height: 10px;
     width: auto;
@@ -874,7 +900,7 @@
   .wl-card-title {
     position: absolute;
     left: 50%;
-    top: 148px;
+    top: 140px;
     transform: translateX(-50%);
     color: #fffafa;
     font-size: 22px;
@@ -888,7 +914,7 @@
   .wl-card-title-sub {
     position: absolute;
     left: 50%;
-    top: 180px;
+    top: 172px;
     transform: translateX(-50%);
     color: rgba(255, 250, 250, 0.72);
     font-size: 12px;
@@ -902,9 +928,9 @@
   .wl-pill {
     position: absolute;
     left: 50%;
-    top: 210px;
+    top: 200px;
     transform: translateX(-50%);
-    width: 240px;
+    width: 270px;
     height: 40px;
     margin: 0;
     padding: 0;
@@ -1029,11 +1055,11 @@
   /* Context menu — right-aligned to the pressed card (iOS sent-message
      behavior) so it never crowds the viewport edge on mobile.
      card: left 28 + width 319 = right 347  →  menu: 347 - 226 = 121
-     top 653 = card bottom 643 + 10px gap (matches gap above card). */
+     top 593 = card bottom 583 + 10px gap (matches gap above card). */
   .wl-menu {
     position: absolute;
     left: 121px;
-    top: 653px;
+    top: 593px;
     width: 226px;
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.6);
@@ -1106,7 +1132,7 @@
   .wl-status {
     position: absolute;
     left: 50%;
-    top: 258px;
+    top: 248px;
     transform: translateX(-50%);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
     font-size: 10px;
