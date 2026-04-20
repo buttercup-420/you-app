@@ -34,18 +34,18 @@
   }
 
 
-  /* ---------- Screen 2: full-bleed headline ---------- */
+  /* ----- Screen 2: pixel-perfect iMessage chat (Figma 375x812) ----- */
 
   #screen2 {
     position: fixed;
     inset: 0;
-    background: #272727;
+    background: #ffffff;
     opacity: 0;
     pointer-events: none;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
     z-index: 9999;
+    display: block;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   #screen2.show {
@@ -54,19 +54,10 @@
     transition: opacity 450ms ease;
   }
 
-  /* ----- Screen 2: pixel-perfect iMessage chat (Figma 375x812) ----- */
-
-  #screen2 {
-    background: #ffffff;
-    display: block;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
   .imsg {
     position: relative;
     width: 375px;
-    margin: 0;
+    margin: 0 auto;
     min-height: 100%;
     background: #ffffff;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Helvetica Neue", sans-serif;
@@ -79,9 +70,9 @@
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    /* On mobile, scale the 375-wide design up to fill the viewport. Uses `zoom`
-       so both visual and layout sizes scale together (fixes scroll extent). */
-    zoom: var(--fit-scale, 1);
+    /* Mobile scaling applied via transform below; origin kept here so the
+       chat expands symmetrically from the top-center of its 375-wide box. */
+    transform-origin: top center;
   }
 
   .imsg-body { flex: 1 1 auto; }
@@ -183,22 +174,13 @@
     top: 18px;
     width: 26px;
     height: 26px;
-    padding: 0;
-    background: transparent;
-    border: 0;
-    cursor: pointer;
   }
 
-  .imsg-facetime svg {
+  .imsg-facetime img {
     width: 26px;
     height: 26px;
     display: block;
   }
-
-  /* Bell toggles between muted (default) and on states. */
-  .imsg-facetime .icon-bell-on { display: none; }
-  .imsg-facetime[aria-pressed="true"] .icon-bell-muted { display: none; }
-  .imsg-facetime[aria-pressed="true"] .icon-bell-on { display: block; }
 
   /* Chat body */
   .imsg-body {
@@ -604,23 +586,16 @@
     .phone-frame .wl-blur { position: absolute; inset: 0; }
   }
 
-  /* Phones narrower than 375 — scale everything down proportionally */
-  @media (max-width: 374px) {
-    .imsg {
-      width: 100%;
-      transform-origin: top center;
-    }
-  }
-
   /* Mobile: hide the iMessage compose bar and lock scrolling. The page is
      a cinematic, non-interactive chat — users just watch messages appear. */
   @media (max-width: 499px) {
     .imsg-input { display: none; }
     #screen2 { overflow: hidden; }
-    /* Kill the auto side-margins so zoom (set on the base .imsg) can
-       stretch the 375-wide chat edge-to-edge and scale content to fill
-       the viewport vertically. */
-    .imsg { margin: 0; }
+    /* Browser computes the scale ratio natively at render time — no JS
+       round-trip, no sub-pixel drift. Unitless calc(length/length) requires
+       Safari 16.4+; older browsers fall through to the JS fallback that
+       sets .imsg.style.transform directly. */
+    .imsg { transform: scale(calc(100vw / 375px)); }
   }
 
   /* ----- Sequential bubble pop-in (iOS send/receive animation) ----- */
@@ -1203,18 +1178,9 @@
           <img class="imsg-avatar-face" src="images/imsg/bobby-avatar.png" alt="" />
         </div>
         <div class="imsg-name">Bobby&nbsp;🤓&nbsp;<span class="chev">›</span></div>
-        <button class="imsg-facetime" id="soundToggle" type="button" aria-label="Turn sound on" aria-pressed="false">
-          <svg class="icon-bell-muted" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M13 3.2c-3.6 0-6.5 2.9-6.5 6.5v3.8L4.6 17v0.9h16.8V17l-1.9-3.5V9.7c0-3.6-2.9-6.5-6.5-6.5Z" stroke="#3478F6" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
-            <path d="M10.6 20.7c0 1.3 1.1 2.4 2.4 2.4s2.4-1.1 2.4-2.4" stroke="#3478F6" stroke-width="1.6" stroke-linecap="round" fill="none"/>
-            <line x1="4.2" y1="22.4" x2="22.4" y2="4.2" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
-            <line x1="4.2" y1="22.4" x2="22.4" y2="4.2" stroke="#3478F6" stroke-width="1.6" stroke-linecap="round"/>
-          </svg>
-          <svg class="icon-bell-on" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M13 3.2c-3.6 0-6.5 2.9-6.5 6.5v3.8L4.6 17v0.9h16.8V17l-1.9-3.5V9.7c0-3.6-2.9-6.5-6.5-6.5Z" stroke="#3478F6" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
-            <path d="M10.6 20.7c0 1.3 1.1 2.4 2.4 2.4s2.4-1.1 2.4-2.4" stroke="#3478F6" stroke-width="1.6" stroke-linecap="round" fill="none"/>
-          </svg>
-        </button>
+        <span class="imsg-facetime" aria-hidden="true">
+          <img src="images/imsg/facetime.svg" alt="" />
+        </span>
       </div>
 
       <div class="imsg-body">
@@ -1341,229 +1307,39 @@
     // Show the chat shell (nav, timestamp) immediately.
     document.getElementById("screen2").classList.add("show");
 
-    // --- Web Audio sound effects (iMessage-style, synthesized inline) ------
-    // Browser autoplay policy blocks audio until first user gesture, so we
-    // lazy-create the AudioContext and resume it on first pointer/key event.
-    // All sounds are short (<400ms) oscillator/noise bursts — no files, no
-    // lag, zero network cost.
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    let audioCtx = null;
-    let soundEnabled = false;
-    function getCtx() {
-      if (!AudioCtx) return null;
-      if (!audioCtx) audioCtx = new AudioCtx();
-      if (audioCtx.state === "suspended") audioCtx.resume();
-      return audioCtx;
-    }
-
-    // iOS "Swoosh" — airy noise sweep + subtle pitched air on top.
-    // Two layers: band-passed white noise sweeping up for the air, plus a
-    // high-sine sweep for the tonal shimmer. Short soft-knee attack,
-    // longer exponential tail.
-    function playSend() {
-      if (!soundEnabled) return;
-      const ctx = getCtx(); if (!ctx) return;
-      const t = ctx.currentTime;
-      const len = 0.42;
-
-      // Noise layer
-      const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * len), ctx.sampleRate);
-      const d = buf.getChannelData(0);
-      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1);
-      const noise = ctx.createBufferSource(); noise.buffer = buf;
-      const bp = ctx.createBiquadFilter();
-      bp.type = "bandpass"; bp.Q.value = 3.2;
-      bp.frequency.setValueAtTime(260, t);
-      bp.frequency.exponentialRampToValueAtTime(5200, t + 0.34);
-      const hp = ctx.createBiquadFilter();
-      hp.type = "highpass"; hp.frequency.value = 420;
-      const gNoise = ctx.createGain();
-      gNoise.gain.setValueAtTime(0, t);
-      gNoise.gain.linearRampToValueAtTime(0.32, t + 0.02);
-      gNoise.gain.setValueAtTime(0.28, t + 0.09);
-      gNoise.gain.exponentialRampToValueAtTime(0.0001, t + len);
-      noise.connect(bp).connect(hp).connect(gNoise).connect(ctx.destination);
-      noise.start(t); noise.stop(t + len + 0.02);
-
-      // Pitched shimmer sine sweep
-      const osc = ctx.createOscillator();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(480, t);
-      osc.frequency.exponentialRampToValueAtTime(2600, t + 0.3);
-      const gOsc = ctx.createGain();
-      gOsc.gain.setValueAtTime(0, t);
-      gOsc.gain.linearRampToValueAtTime(0.06, t + 0.025);
-      gOsc.gain.exponentialRampToValueAtTime(0.0001, t + 0.38);
-      osc.connect(gOsc).connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.42);
-    }
-
-    // iOS "Note" — soft marimba-like pluck via FM synthesis.
-    // Sine carrier with a modulator that decays the index quickly,
-    // giving the wooden tonal pluck + fast transient iOS uses.
-    function playReceive() {
-      if (!soundEnabled) return;
-      const ctx = getCtx(); if (!ctx) return;
-      const t = ctx.currentTime;
-      const len = 0.55;
-      const f = 987.77; // B5 — crisp, musical
-
-      const carrier = ctx.createOscillator();
-      carrier.type = "sine";
-      carrier.frequency.value = f;
-
-      const mod = ctx.createOscillator();
-      mod.type = "sine";
-      mod.frequency.value = f * 2; // 2:1 ratio → bell/marimba-ish
-      const modGain = ctx.createGain();
-      modGain.gain.setValueAtTime(620, t);
-      modGain.gain.exponentialRampToValueAtTime(3, t + 0.22);
-      mod.connect(modGain).connect(carrier.frequency);
-
-      const g = ctx.createGain();
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.32, t + 0.004);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + len);
-
-      // Gentle HPF to keep it crisp
-      const hp = ctx.createBiquadFilter();
-      hp.type = "highpass"; hp.frequency.value = 240;
-
-      carrier.connect(g).connect(hp).connect(ctx.destination);
-      carrier.start(t); carrier.stop(t + len + 0.02);
-      mod.start(t); mod.stop(t + len + 0.02);
-    }
-
-    // Tapback reaction — tiny bright pluck (FM, higher register).
-    function playTapback() {
-      if (!soundEnabled) return;
-      const ctx = getCtx(); if (!ctx) return;
-      const t = ctx.currentTime;
-      const len = 0.36;
-      const f = 1864.66; // A#6
-
-      const carrier = ctx.createOscillator();
-      carrier.type = "sine";
-      carrier.frequency.value = f;
-
-      const mod = ctx.createOscillator();
-      mod.type = "sine";
-      mod.frequency.value = f * 3;
-      const modGain = ctx.createGain();
-      modGain.gain.setValueAtTime(360, t);
-      modGain.gain.exponentialRampToValueAtTime(2, t + 0.15);
-      mod.connect(modGain).connect(carrier.frequency);
-
-      const g = ctx.createGain();
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.14, t + 0.003);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + len);
-
-      carrier.connect(g).connect(ctx.destination);
-      carrier.start(t); carrier.stop(t + len + 0.02);
-      mod.start(t); mod.stop(t + len + 0.02);
-    }
-
-    // Long-press / overlay open — UI pop with a tiny low-end thud.
-    function playPress() {
-      if (!soundEnabled) return;
-      const ctx = getCtx(); if (!ctx) return;
-      const t = ctx.currentTime;
-
-      // Low pluck (thud)
-      const low = ctx.createOscillator();
-      low.type = "sine";
-      low.frequency.setValueAtTime(220, t);
-      low.frequency.exponentialRampToValueAtTime(90, t + 0.22);
-      const gLow = ctx.createGain();
-      gLow.gain.setValueAtTime(0, t);
-      gLow.gain.linearRampToValueAtTime(0.22, t + 0.008);
-      gLow.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
-      low.connect(gLow).connect(ctx.destination);
-      low.start(t); low.stop(t + 0.36);
-
-      // High tick (click)
-      const tick = ctx.createOscillator();
-      tick.type = "sine";
-      tick.frequency.setValueAtTime(3200, t);
-      tick.frequency.exponentialRampToValueAtTime(1400, t + 0.05);
-      const gTick = ctx.createGain();
-      gTick.gain.setValueAtTime(0, t);
-      gTick.gain.linearRampToValueAtTime(0.08, t + 0.003);
-      gTick.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
-      tick.connect(gTick).connect(ctx.destination);
-      tick.start(t); tick.stop(t + 0.12);
-    }
-
-    // Bell toggle — flips sound on/off. Plays a confirmation chirp on enable.
-    const soundBtn = document.getElementById("soundToggle");
-    if (soundBtn) {
-      soundBtn.addEventListener("click", () => {
-        soundEnabled = !soundEnabled;
-        soundBtn.setAttribute("aria-pressed", soundEnabled ? "true" : "false");
-        soundBtn.setAttribute("aria-label", soundEnabled ? "Turn sound off" : "Turn sound on");
-        if (soundEnabled) {
-          getCtx();
-          playReceive();
-        }
-      });
-    }
-
     // Block pinch-to-zoom on iOS Safari (ignores user-scalable=no in meta).
     // The page is a fixed cinematic experience — scaling breaks the layout.
     ["gesturestart", "gesturechange", "gestureend"].forEach((ev) => {
       document.addEventListener(ev, (e) => e.preventDefault(), { passive: false });
     });
-    // Also block double-tap zoom by swallowing the second tap within 300ms.
-    // touch-action: manipulation handles most of this, but this is a safety.
-    let lastTouchEnd = 0;
-    document.addEventListener(
-      "touchend",
-      (e) => {
-        const now = Date.now();
-        if (now - lastTouchEnd < 300 && e.target && !e.target.matches("input, textarea, button, [contenteditable]")) {
-          e.preventDefault();
-        }
-        lastTouchEnd = now;
-      },
-      { passive: false }
-    );
+    // Chat scaling is pure CSS (transform: scale(calc(100vw / 375px)) in the
+    // mobile media query). Feature-detect unitless calc(length/length) —
+    // Safari < 16.4 rejects it, so fall back to a JS-computed transform.
+    const CALC_RATIO_OK =
+      window.CSS && CSS.supports && CSS.supports("transform", "scale(calc(2px / 1px))");
 
-    // Responsive scale — below 500px viewport (mobile), zoom the 375-wide chat
-    // so it fills the screen on any phone (iPhone 14, Pro Max, Android, etc.).
-    // On desktop, stays at native 375 centered.
+    // Waitlist stage uses vh-dependent Math.min that CSS can't cleanly express
+    // alongside the keyboard-stability constraint, so it stays JS-driven.
+    // innerHeight (not visualViewport.height) keeps the stage stable when the
+    // iOS keyboard opens for the email input.
     function fitResponsive() {
-      // visualViewport.width is more accurate than innerWidth on iOS (better
-      // left-edge fit for the chat). For height we intentionally use
-      // innerHeight — visualViewport.height shrinks when the iOS keyboard
-      // opens, which would collapse the waitlist stage scale mid-interaction.
       const vw = (window.visualViewport && window.visualViewport.width) || window.innerWidth;
       const vh = window.innerHeight;
-      let chatScale = 1;
-      let stageScale = 1;
-      if (vw < 500) {
-        // +2px overcompensation so sub-pixel rounding / reported-width drift
-        // can't leave a sliver of the body background peeking at the left
-        // edge. Clipped cleanly by #screen2's overflow:hidden.
-        chatScale = (vw + 2) / 375;
-        stageScale = Math.min(vw / 375, vh / 812);
-      }
-      document.documentElement.style.setProperty("--fit-scale", chatScale);
+      const stageScale = vw < 500 ? Math.min(vw / 375, vh / 812) : 1;
       document.documentElement.style.setProperty("--stage-scale", stageScale);
-      // Belt-and-suspenders: also set zoom inline to rule out any CSS-var
-      // resolution quirks in Safari. The CSS still has zoom:var(--fit-scale)
-      // as a fallback, and desktop (vw >= 500) resets chatScale to 1.
-      const imsgEl = document.querySelector(".imsg");
-      if (imsgEl) imsgEl.style.zoom = chatScale;
+
+      if (!CALC_RATIO_OK) {
+        const imsgEl = document.querySelector(".imsg");
+        if (imsgEl) {
+          imsgEl.style.transform = vw < 500 ? "scale(" + vw / 375 + ")" : "";
+        }
+      }
     }
     window.addEventListener("resize", fitResponsive);
     window.addEventListener("orientationchange", fitResponsive);
     // NOT listening to visualViewport "resize" — it fires when the iOS
     // keyboard opens/closes, which would shrink the waitlist stage.
     fitResponsive();
-
-    // Keep the existing name around as an alias (used in the waitlist trigger)
-    const fitWaitlistStage = fitResponsive;
 
     // --- Sequential chat reveal (iOS send/receive cadence) ---
     // Messages pop in one at a time, fast. After the YOU card lands, the heart
@@ -1583,13 +1359,7 @@
       let t = INITIAL_DELAY;
       items.forEach((el) => {
         const isCard = el.classList.contains("imsg-card-row");
-        const isSent = el.classList.contains("sent") || isCard;
-        const isReceived = el.classList.contains("received");
-        setTimeout(() => {
-          el.classList.add("in");
-          if (isSent) playSend();
-          else if (isReceived) playReceive();
-        }, t);
+        setTimeout(() => el.classList.add("in"), t);
         t += isCard ? CARD_GAP : GAP;
       });
 
@@ -1597,15 +1367,13 @@
       const heartAt = t + POST_CONVO;
       setTimeout(() => {
         if (heartEl) heartEl.classList.add("in");
-        playTapback();
       }, heartAt);
 
       const waitlistAt = heartAt + HEART_ANIM + HEART_SETTLE;
       setTimeout(() => {
-        fitWaitlistStage();
+        fitResponsive();
         document.body.classList.add("pressed");
         document.getElementById("screen3").classList.add("show");
-        playPress();
       }, waitlistAt);
     }
 
