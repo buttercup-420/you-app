@@ -730,13 +730,15 @@
     pointer-events: auto;
   }
 
-  /* Stage = the 375x812 phone frame that everything positions against.
-     Uses --stage-scale so the overlay can shrink vertically on short
-     Safari viewports without dragging the chat's width-fill scale down. */
+  /* Stage = 375x740 logical frame everything positions against.
+     Logical height matches the actual used content span (menu bottom at
+     733 + 7px buffer) so the vh scale constraint doesn't drag the overlay
+     down on Safari configs with visible top URL bar + bottom toolbar.
+     Uses --stage-scale = min(vw/375, vh/740) on mobile, 1 on desktop. */
   .wl-stage {
     position: relative;
     width: 375px;
-    height: 812px;
+    height: 740px;
     zoom: var(--stage-scale, 1);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Helvetica Neue", sans-serif;
   }
@@ -864,13 +866,13 @@
 
   /* Main YOU card (the pressed message attachment, expanded).
      top:243 leaves a 10px gap below the tapback bar (bottom 233), matching
-     the 10px gap between the card bottom (583) and the menu top (593). */
+     the 10px gap between the card bottom (563) and the menu top (573). */
   .wl-card {
     position: absolute;
     left: 28px;
     top: 243px;
     width: 319px;
-    height: 340px;
+    height: 320px;
     border-radius: 15px;
     background: #272727;
     overflow: hidden;
@@ -928,7 +930,7 @@
   .wl-pill {
     position: absolute;
     left: 50%;
-    top: 200px;
+    top: 190px;
     transform: translateX(-50%);
     width: 270px;
     height: 40px;
@@ -1055,11 +1057,11 @@
   /* Context menu — right-aligned to the pressed card (iOS sent-message
      behavior) so it never crowds the viewport edge on mobile.
      card: left 28 + width 319 = right 347  →  menu: 347 - 226 = 121
-     top 593 = card bottom 583 + 10px gap (matches gap above card). */
+     top 573 = card bottom 563 + 10px gap (matches gap above card). */
   .wl-menu {
     position: absolute;
     left: 121px;
-    top: 593px;
+    top: 573px;
     width: 226px;
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.6);
@@ -1132,7 +1134,7 @@
   .wl-status {
     position: absolute;
     left: 50%;
-    top: 248px;
+    top: 236px;
     transform: translateX(-50%);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
     font-size: 10px;
@@ -1647,7 +1649,7 @@
     function fitResponsive() {
       const vw = (window.visualViewport && window.visualViewport.width) || window.innerWidth;
       const vh = window.innerHeight;
-      const stageScale = vw < 500 ? Math.min(vw / 375, vh / 812) : 1;
+      const stageScale = vw < 500 ? Math.min(vw / 375, vh / 740) : 1;
       document.documentElement.style.setProperty("--stage-scale", stageScale);
 
       if (!CALC_RATIO_OK) {
