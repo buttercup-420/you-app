@@ -1511,11 +1511,12 @@
     // so it fills the screen on any phone (iPhone 14, Pro Max, Android, etc.).
     // On desktop, stays at native 375 centered.
     function fitResponsive() {
-      // visualViewport reflects the real visual viewport Safari is painting
-      // (accounting for pinch zoom, safe areas, URL bar state). Fall back to
-      // innerWidth on older browsers.
+      // visualViewport.width is more accurate than innerWidth on iOS (better
+      // left-edge fit for the chat). For height we intentionally use
+      // innerHeight — visualViewport.height shrinks when the iOS keyboard
+      // opens, which would collapse the waitlist stage scale mid-interaction.
       const vw = (window.visualViewport && window.visualViewport.width) || window.innerWidth;
-      const vh = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+      const vh = window.innerHeight;
       let chatScale = 1;
       let stageScale = 1;
       if (vw < 500) {
@@ -1535,9 +1536,8 @@
     }
     window.addEventListener("resize", fitResponsive);
     window.addEventListener("orientationchange", fitResponsive);
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", fitResponsive);
-    }
+    // NOT listening to visualViewport "resize" — it fires when the iOS
+    // keyboard opens/closes, which would shrink the waitlist stage.
     fitResponsive();
 
     // Keep the existing name around as an alias (used in the waitlist trigger)
